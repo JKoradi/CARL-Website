@@ -21,7 +21,7 @@ root.appendChild(content);
 
   const st = {
     L1:85, L2:150, L3:150, L41:85, L42:140, kink:15*RAD, d:0,
-    x:-70, y:230, leg:"right", sK:+1, sP:+1, walking:false, phase:0, showWs:true
+    x:0, y:200, leg:"right", sK:+1, sP:+1, walking:false, phase:0, showWs:true
   };
   let gait = {step:110, lift:40, depth:200, off:0};
   let pose = null;          // last successfully solved pose
@@ -328,7 +328,7 @@ root.appendChild(content);
              sStep:110,sLift:40,sDepth:200,sOff:0};
     for(const k in d){ $(k).value=d[k]; }
     for(const k in d){ $(k).dispatchEvent(new Event("input")); }
-    st.x=-70; st.y=230; buildWorkspace(); render();
+    st.x=0; st.y=200; buildWorkspace(); render();
   });
 
   buildWorkspace(); buildTrace(); render();
