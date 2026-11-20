@@ -18,7 +18,7 @@
       <a class="brand" href="#top"><span class="brand-mark">C<span>.</span></span><span>CARL <small>ROBOTICS PROJECT</small></span></a>
       <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation">☰</button>
       <div class="nav-links" id="nav-links">
-        <a href="#overview">Overview</a><a href="#engineering">Engineering</a><a href="#software">Software</a><a href="#progress">Progress</a>
+        <a href="#overview">Overview</a><a href="#engineering">Engineering</a><a href="#software">Software</a><a href="#simulation">Simulation</a><a href="#progress">Progress</a>
       </div>
     </nav>
   </header>
@@ -54,6 +54,14 @@ Xbox controller / motion targets
               │
               ▼
        12 BLDC motors</code></pre></div><div class="software-points"><article><span>01</span><div><h3>Automated homing</h3><p>Stall-based endstop detection and staged joint homing for all four legs.</p></div></article><article><span>02</span><div><h3>Analytical inverse kinematics</h3><p>Geometric leg modeling and analytical solutions for target foot positions; 3D integration is in development.</p></div></article><article><span>03</span><div><h3>Operator interface</h3><p>Xbox controller input and Python-based motor control on the Raspberry Pi.</p></div></article></div></div></section>
+    <section class="section container" id="simulation">
+      <p class="section-kicker">04 / INTERACTIVE KINEMATICS</p>
+      <div class="section-heading"><h2>EXPLORE THE<br />LEG MECHANISM.</h2><p>Try CARL's analytical inverse kinematics yourself. Drag the foot, adjust the link geometry, and visualize the reachable workspace.</p></div>
+      <div style="border:1px solid #303944;background:#171d25;padding:12px;margin:28px 0 18px">
+        <iframe src="kinematics.html" title="Interactive CARL five-bar leg inverse kinematics simulation" loading="lazy" style="display:block;width:100%;height:680px;border:0;background:#0b0e12"></iframe>
+      </div>
+      <div class="actions"><a class="button primary" href="kinematics.html">Open full-screen simulation ↗</a></div>
+    </section>
     <section class="section progress-section" id="progress"><div class="container"><p class="section-kicker">04 / DEVELOPMENT LOG</p><div class="section-heading"><h2>BUILD. TEST. ITERATE.</h2><p>Selected development milestones and next steps.</p></div><div class="timeline"><article><div class="timeline-marker"></div><div class="timeline-meta">COMPLETED</div><div><h3>Mechanical prototype and actuation</h3><p>Custom leg architecture, capstan drives, BLDC motors and motor-controller integration.</p></div></article><article><div class="timeline-marker"></div><div class="timeline-meta">COMPLETED</div><div><h3>Automated joint homing</h3><p>Coordinated multi-motor homing sequence with endstop detection and position holding.</p></div></article><article><div class="timeline-marker"></div><div class="timeline-meta">IN DEVELOPMENT</div><div><h3>Coordinated motion control</h3><p>Integrating 3D inverse kinematics and coordinated leg positioning.</p></div></article><article><div class="timeline-marker future"></div><div class="timeline-meta">FUTURE WORK</div><div><h3>Walking and terrain perception</h3><p>Gait generation, robust locomotion and perception-guided foot placement.</p></div></article></div></div></section>
     <section class="section container about" id="about"><div><p class="section-kicker">05 / THE DEVELOPER</p><h2>BUILT TO LEARN.<br /><em>BUILT TO EXPLORE.</em></h2></div><div><p>I'm a mechanical engineering graduate pursuing robotics and mechatronics. CARL is my hands-on platform for combining mechanical design, embedded electronics, mathematical modeling and control software.</p><p>Interested in robotics research, thesis opportunities or engineering collaborations? I'd be happy to connect.</p><a class="text-link" href="https://github.com/JKoradi" target="_blank" rel="noopener noreferrer">Explore my GitHub ↗</a></div></section>
   </main>
