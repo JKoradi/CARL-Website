@@ -41,7 +41,13 @@ root.appendChild(content);
     return { x:P.x+a*ux + sign*h*(-uy), y:P.y+a*uy + sign*h*ux };
   }
 
-  // Angles are clockwise from upward (negative screen y).\n  const jointAngle = (from,to) => Math.atan2(to.x-from.x, from.y-to.y);\n  const wrap360 = deg => ((deg%360)+360)%360;\n  const theta2Allowed = deg => { const wrapped=wrap360(deg); return wrapped>=162.732-1e-8 && wrapped<=282.732+1e-8; };\n  const openingAngle = (a,b) => Math.acos(Math.max(-1,Math.min(1,Math.cos(a-b))))*DEG;\n\n  // ---- inverse kinematics ----------------------------------------------
+  // Angles are clockwise from upward (negative screen y).
+  const jointAngle = (from,to) => Math.atan2(to.x-from.x, from.y-to.y);
+  const wrap360 = deg => ((deg%360)+360)%360;
+  const theta2Allowed = deg => { const wrapped=wrap360(deg); return wrapped>=162.732-1e-8 && wrapped<=282.732+1e-8; };
+  const openingAngle = (a,b) => Math.acos(Math.max(-1,Math.min(1,Math.cos(a-b))))*DEG;
+
+  // ---- inverse kinematics ----------------------------------------------
   function solveIK(fx, fy){
     const A = {x:-st.d/2, y:0}, B = {x:+st.d/2, y:0}, F = {x:fx, y:fy};
 
