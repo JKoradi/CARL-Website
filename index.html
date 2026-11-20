@@ -71,7 +71,26 @@
         <h2 id="architecture-heading">FROM INPUT<br />TO ACTUATION.</h2>
         <p>Select a component to see how commands travel through CARL's Raspberry Pi, Pi3Hat and four CAN-FD buses to its 12 motors.</p>
       </div>
-      <iframe src="architecture.html" title="Interactive CARL control architecture diagram" loading="lazy" style="display:block;width:100%;height:1100px;border:1px solid #303944;border-radius:8px;background:#0b0e12" ></iframe>
+      <div class="architecture-diagram"><section class="architecture-flow" aria-label="Interactive control architecture">
+<button class="architecture-node" data-id="xbox"><small>01 / OPERATOR INPUT</small><strong>Xbox controller</strong><span>Bluetooth · evdev · operator commands</span></button>
+<div class="architecture-arrow"><b>↓</b> user input</div>
+<button class="node" data-id="pi"><small>02 / MAIN COMPUTER</small><strong>Raspberry Pi 4 · Python</strong><span>Controller mapping · motion targets · homing · leg IK</span></button>
+<div class="architecture-arrow"><b>↓</b> motor commands</div>
+<button class="node" data-id="hat"><small>03 / CAN INTERFACE</small><strong>mjbots Pi3Hat</strong><span>Four independent CAN-FD buses · onboard IMU</span></button>
+<div class="architecture-arrow"><b>↓</b> CAN-FD</div>
+<div class="architecture-split">
+<button class="architecture-node architecture-bus" data-id="b1"><small>BUS 1</small><strong>Front right</strong><span>3 · 2 · 1</span></button>
+<button class="architecture-node architecture-bus" data-id="b2"><small>BUS 2</small><strong>Back right</strong><span>6 · 5 · 4</span></button>
+<button class="architecture-node architecture-bus" data-id="b3"><small>BUS 3</small><strong>Front left</strong><span>9 · 7 · 8</span></button>
+<button class="architecture-node architecture-bus" data-id="b4"><small>BUS 4</small><strong>Back left</strong><span>12 · 10 · 11</span></button>
+</div>
+<div class="architecture-arrow"><b>↓</b> position / torque commands</div>
+<button class="node" data-id="motors"><small>04 / ACTUATION</small><strong>12 Moteus controllers + 12 BLDC motors</strong><span>3 actuated joints per leg · capstan transmissions</span></button>
+<div class="architecture-legend"><span>Solid blocks = implemented hardware / software components</span><span>3D IK integration and gait control remain in development</span></div>
+</section>
+<aside class="architecture-detail" aria-live="polite"><div class="architecture-kicker" id="detailTag">SELECTED COMPONENT</div><h2 id="detailTitle"></h2><p id="detailBody"></p><ul id="detailList"></ul></aside></div>
+<p class="architecture-footnote">Conceptual data-flow diagram, not an electrical wiring schematic. Joint IDs are CARL's configured assignments; the architecture is not a claim of autonomous walking capability.</p>
+
     </section>
     <section class="section container" id="simulation">
       <p class="section-kicker">04 / INTERACTIVE KINEMATICS</p>
