@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0e12" />
+  <meta name="description" content="CARL — Capstan Actuated Robot Locomotion. A custom 12-DoF quadruped robotics project." />
+  <meta property="og:title" content="CARL | Capstan Actuated Robot Locomotion" />
+  <meta property="og:description" content="Custom quadruped robot: mechanical design, actuation, embedded control and inverse kinematics." />
+  <title>CARL — Capstan Actuated Robot Locomotion</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="brand" href="#top"><span class="brand-mark">C<span>.</span></span><span>CARL <small>ROBOTICS PROJECT</small></span></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation">☰</button>
+      <div class="nav-links" id="nav-links">
+        <a href="#overview">Overview</a><a href="#engineering">Engineering</a><a href="#software">Software</a><a href="#progress">Progress</a>
+        <a class="nav-github" href="https://github.com/JKoradi" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+      </div>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero container" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> INDEPENDENT ROBOTICS PROJECT</p>
+        <h1>MEET <span>CARL.</span></h1>
+        <p class="hero-subtitle">Capstan Actuated<br />Robot Locomotion</p>
+        <p class="hero-description">A custom-built quadruped exploring mechanical design, cable-driven actuation, embedded systems and legged robot control.</p>
+        <div class="actions"><a class="button primary" href="#engineering">Explore the engineering <span aria-hidden="true">↗</span></a><a class="button secondary" href="#progress">Development progress ↓</a></div>
+      </div>
+      <div class="hero-visual" role="img" aria-label="Placeholder for a photograph of the CARL quadruped robot">
+        <div class="visual-grid"></div><div class="visual-center"><div class="outline-icon">C<span>.</span></div><p>CARL / HERO IMAGE</p><small>Add assets/photos/carl-hero.jpg</small></div>
+        <span class="corner corner-tl"></span><span class="corner corner-br"></span>
+      </div>
+      <div class="hero-meta"><span>PERSONAL ENGINEERING PROJECT</span><span>MECHANICS × ELECTRONICS × CONTROL</span><span>SCROLL TO EXPLORE ↓</span></div>
+    </section>
+    <section class="metrics-wrap" id="overview"><div class="container metrics"><div><strong>12</strong><span>DEGREES OF FREEDOM</span></div><div><strong>4</strong><span>ACTUATED LEGS</span></div><div><strong>CAN-FD</strong><span>MOTOR COMMUNICATION</span></div><div><strong>3D</strong><span>INVERSE KINEMATICS DEVELOPMENT</span></div></div></section>
+    <section class="section container intro"><div><p class="section-kicker">01 / PROJECT OVERVIEW</p><h2>ENGINEERED<br /><em>FROM THE GROUND UP.</em></h2></div><div class="intro-body"><p>CARL is a personal quadruped robotics project focused on developing and integrating the complete mechatronic system — from mechanical transmission design to embedded motor control.</p><p>The platform combines custom capstan actuation, brushless motors, Moteus motor controllers and a Raspberry Pi-based control system. Development is ongoing, with current work focused on coordinated motion and leg kinematics.</p><p class="note">This page documents implemented features and work in progress separately.</p></div></section>
+    <section class="section engineering-section" id="engineering"><div class="container"><p class="section-kicker">02 / HARDWARE</p><div class="section-heading"><h2>THE ENGINEERING.</h2><p>Designed, assembled and tested as an integrated robotics platform.</p></div><div class="feature-grid"><article class="feature-card feature-wide"><div class="feature-number">01 — MECHANICAL SYSTEM</div><h3>Custom capstan actuation</h3><p>Custom cable-based transmissions and a five-bar leg mechanism designed for compact, responsive joint actuation.</p><div class="feature-art mechanical"><span>CAD / MECHANISM RENDER</span><small>assets/renders/mechanism.jpg</small></div></article><article class="feature-card"><div class="feature-number">02 — ACTUATION</div><h3>12 brushless motors</h3><p>Three actuated degrees of freedom per leg, using BLDC motors and Moteus motor controllers.</p><div class="mini-tags"><span>BLDC</span><span>MOTEUS</span><span>12 DOF</span></div></article><article class="feature-card"><div class="feature-number">03 — EMBEDDED SYSTEM</div><h3>Distributed motor control</h3><p>Raspberry Pi 4 with Pi3Hat and CAN-FD communication across four motor buses.</p><div class="mini-tags"><span>RASPBERRY PI 4</span><span>PI3HAT</span><span>CAN-FD</span></div></article></div></div></section>
+    <section class="section container" id="software"><p class="section-kicker">03 / SOFTWARE & CONTROL</p><div class="section-heading"><h2>FROM CODE<br />TO MOTION.</h2><p>A modular Python control stack connecting user input, kinematics and motor commands.</p></div><div class="software-layout"><div class="terminal"><div class="terminal-top"><div class="dots"><i></i><i></i><i></i></div><span>CARL / CONTROL ARCHITECTURE</span></div><pre><code><span class="code-comment"># Simplified system overview</span>
+Xbox controller / motion targets
+              │
+              ▼
+     Kinematics & control
+              │
+              ▼
+     Moteus interface
+              │
+              ▼
+      Pi3Hat / CAN-FD
+              │
+              ▼
+       12 BLDC motors</code></pre></div><div class="software-points"><article><span>01</span><div><h3>Automated homing</h3><p>Stall-based endstop detection and staged joint homing for all four legs.</p></div></article><article><span>02</span><div><h3>Analytical inverse kinematics</h3><p>Geometric leg modeling and analytical solutions for target foot positions; 3D integration is in development.</p></div></article><article><span>03</span><div><h3>Operator interface</h3><p>Xbox controller input and Python-based motor control on the Raspberry Pi.</p></div></article></div></div></section>
+    <section class="section progress-section" id="progress"><div class="container"><p class="section-kicker">04 / DEVELOPMENT LOG</p><div class="section-heading"><h2>BUILD. TEST. ITERATE.</h2><p>Selected development milestones and next steps.</p></div><div class="timeline"><article><div class="timeline-marker"></div><div class="timeline-meta">COMPLETED</div><div><h3>Mechanical prototype and actuation</h3><p>Custom leg architecture, capstan drives, BLDC motors and motor-controller integration.</p></div></article><article><div class="timeline-marker"></div><div class="timeline-meta">COMPLETED</div><div><h3>Automated joint homing</h3><p>Coordinated multi-motor homing sequence with endstop detection and position holding.</p></div></article><article><div class="timeline-marker"></div><div class="timeline-meta">IN DEVELOPMENT</div><div><h3>Coordinated motion control</h3><p>Integrating 3D inverse kinematics and coordinated leg positioning.</p></div></article><article><div class="timeline-marker future"></div><div class="timeline-meta">FUTURE WORK</div><div><h3>Walking and terrain perception</h3><p>Gait generation, robust locomotion and perception-guided foot placement.</p></div></article></div></div></section>
+    <section class="section container about" id="about"><div><p class="section-kicker">05 / THE DEVELOPER</p><h2>BUILT TO LEARN.<br /><em>BUILT TO EXPLORE.</em></h2></div><div><p>I'm a mechanical engineering graduate pursuing robotics and mechatronics. CARL is my hands-on platform for combining mechanical design, embedded electronics, mathematical modeling and control software.</p><p>Interested in robotics research, thesis opportunities or engineering collaborations? I'd be happy to connect.</p><a class="text-link" href="https://github.com/JKoradi" target="_blank" rel="noopener noreferrer">Explore my GitHub ↗</a></div></section>
+  </main>
+  <footer class="footer"><div class="container footer-inner"><a class="brand" href="#top"><span class="brand-mark">C<span>.</span></span><span>CARL</span></a><span>CAPSTAN ACTUATED ROBOT LOCOMOTION</span><span>© <span id="year">2026</span> CARL PROJECT</span></div></footer>
+</body>
+</html>
