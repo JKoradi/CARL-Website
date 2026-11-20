@@ -10,6 +10,7 @@
   <title>CARL — Capstan Actuated Robot Locomotion</title>
   <link rel="stylesheet" href="css/style.css" />
   <script src="js/main.js" defer></script>
+  <script src="js/kinematics-embed.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -96,7 +97,7 @@
       <p class="section-kicker">04 / INTERACTIVE KINEMATICS</p>
       <div class="section-heading"><h2>EXPLORE THE<br />LEG MECHANISM.</h2><p>Try CARL's analytical inverse kinematics yourself. Drag the foot, adjust the link geometry, and visualize the reachable workspace.</p></div>
       <div style="border:1px solid #303944;background:#171d25;padding:12px;margin:28px 0 18px">
-        <iframe src="kinematics.html" title="Interactive CARL five-bar leg inverse kinematics simulation" loading="lazy" style="display:block;width:100%;height:680px;border:0;background:#0b0e12"></iframe>
+        <carl-kinematics aria-label="Interactive five-bar inverse kinematics simulation"></carl-kinematics>
       </div>
       <div class="actions"><a class="button primary" href="kinematics.html">Open full-screen simulation ↗</a></div>
     </section>
