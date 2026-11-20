@@ -1,0 +1,313 @@
+/* CARL five-bar IK simulation — rendered directly in the homepage via Shadow DOM.
+   Source: kinematics.html. The shadow root isolates its controls and styles. */
+(()=>{
+const host=document.querySelector('#simulation carl-kinematics');
+if(!host)return;
+const root=host.attachShadow({mode:'open'});
+const style=document.createElement('style');
+style.textContent="\n  :host{\n    --paper:#dde3e8;\n    --paper-hi:#eef2f5;\n    --ink:#101a24;\n    --ink-soft:#4a5a68;\n    --grid:#c5cfd8;\n    --rule:#b9c4cd;\n    /* link colours taken straight from the sketch */\n    --l1:#f0a81e;\n    --l2:#a41fb0;\n    --l3:#1663ab;\n    --l4:#e0202a;\n    --joint:#35b6f0;\n    --foot:#15803c;\n  }\n  *{box-sizing:border-box}\n  :host{margin:0;padding:0}\n:host{\n    background:var(--paper);\n    color:var(--ink);\n    font-family:\"IBM Plex Sans\",system-ui,sans-serif;\n    font-size:15px;line-height:1.5;\n    -webkit-font-smoothing:antialiased;\n  }\n  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 56px}\n\n  header.masthead{\n    display:flex;align-items:flex-end;justify-content:space-between;\n    gap:24px;flex-wrap:wrap;\n    border-bottom:1.5px solid var(--ink);\n    padding-bottom:14px;margin-bottom:22px;\n  }\n  .eyebrow{\n    font-family:\"IBM Plex Mono\",monospace;\n    font-size:11px;letter-spacing:.18em;text-transform:uppercase;\n    color:var(--ink-soft);margin:0 0 4px;\n  }\n  h1{\n    font-family:\"Space Grotesk\",\"IBM Plex Sans\",sans-serif;\n    font-weight:700;font-size:clamp(28px,4.2vw,42px);\n    letter-spacing:-.02em;line-height:1;margin:0;\n  }\n  .lede{max-width:38ch;font-size:14px;color:var(--ink-soft);margin:0}\n\n  .bench{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;align-items:start}\n  @media (max-width:900px){.bench{grid-template-columns:1fr}}\n\n  .plate{\n    background:var(--paper-hi);\n    border:1.5px solid var(--ink);\n    margin-bottom:18px;\n  }\n  .plate-label{\n    display:flex;justify-content:space-between;align-items:center;gap:12px;\n    font-family:\"IBM Plex Mono\",monospace;\n    font-size:11px;letter-spacing:.14em;text-transform:uppercase;\n    color:var(--ink-soft);\n    border-bottom:1px solid var(--rule);\n    padding:8px 12px;\n  }\n  .plate-body{padding:12px}\n\n  svg#stage{display:block;width:100%;height:auto;touch-action:none;background:\n    linear-gradient(var(--grid) 1px,transparent 1px) 0 0/22px 22px,\n    linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/22px 22px,\n    var(--paper-hi);\n  }\n\n  /* ---------- link styling ---------- */\n  .lk{stroke-linecap:round;fill:none}\n  #lnL1{stroke:var(--l1);stroke-width:7}\n  #lnL2{stroke:var(--l2);stroke-width:7}\n  #lnL3{stroke:var(--l3);stroke-width:7}\n  #lnL41,#lnL42{stroke:var(--l4);stroke-width:7}\n  #hipbar{stroke:var(--ink);stroke-width:4;stroke-linecap:round}\n  .joint{fill:var(--joint);stroke:var(--ink);stroke-width:1.4}\n  .pivot{fill:var(--paper-hi);stroke:var(--ink);stroke-width:2.4}\n  .guide{stroke:var(--ink-soft);stroke-width:1;stroke-dasharray:4 4;fill:none;opacity:.7}\n  .reachline{stroke:var(--ink-soft);stroke-width:1.2;stroke-dasharray:2 5;fill:none}\n  .arc{fill:none;stroke:var(--ink);stroke-width:1.4}\n  .arc.k{stroke:var(--l4)}\n  .lab{font-family:\"IBM Plex Mono\",monospace;font-size:11px;fill:var(--ink-soft)}\n  .lab.big{font-size:12px;fill:var(--ink);font-weight:500}\n  .lab.l1{fill:var(--l1)}.lab.l2{fill:var(--l2)}.lab.l3{fill:var(--l3)}.lab.l4{fill:var(--l4)}\n  .ws{fill:none;stroke:var(--l3);stroke-width:2.4;stroke-linecap:round;opacity:.13}\n  #trace{fill:none;stroke:var(--foot);stroke-width:1.6;stroke-dasharray:5 4;opacity:.85}\n  #footdot{fill:var(--foot);stroke:var(--ink);stroke-width:1.5}\n  #halo{fill:var(--foot);opacity:.14}\n  #handle{cursor:grab}\n  #handle:active{cursor:grabbing}\n  #handle:focus-visible #halo{opacity:.3}\n  .stale #lnL1,.stale #lnL2,.stale #lnL3,.stale #lnL41,.stale #lnL42{opacity:.35}\n\n  /* hover isolation from the solution sheet */\n  #stage[data-hl] .fade{opacity:.12}\n  #stage[data-hl=\"foot\"]  .h-foot,\n  #stage[data-hl=\"k\"]     .h-k,\n  #stage[data-hl=\"psi\"]   .h-psi,\n  #stage[data-hl=\"e\"]     .h-e,\n  #stage[data-hl=\"reach\"] .h-reach,\n  #stage[data-hl=\"p1\"]    .h-p1,\n  #stage[data-hl=\"out\"]   .h-out{opacity:1}\n\n  /* ---------- controls ---------- */\n  .ctls{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}\n  @media (max-width:520px){.ctls{grid-template-columns:1fr}}\n  .ctl label{\n    display:flex;justify-content:space-between;gap:8px;\n    font-family:\"IBM Plex Mono\",monospace;font-size:11px;\n    letter-spacing:.05em;color:var(--ink-soft);\n  }\n  .ctl label b{color:var(--ink);font-weight:600}\n  input[type=range]{width:100%;margin:4px 0 0;accent-color:var(--l2);height:18px}\n  input[type=range]:focus-visible{outline:2px solid var(--ink);outline-offset:3px}\n  .swatch{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:baseline}\n  .sub{grid-column:1/-1;font-family:\"IBM Plex Mono\",monospace;font-size:10px;\n    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);\n    border-top:1px solid var(--rule);padding-top:9px;margin-top:3px}\n  .btnrow{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border-top:1px solid var(--rule)}\n  button{\n    font-family:\"IBM Plex Mono\",monospace;font-size:11px;letter-spacing:.08em;\n    text-transform:uppercase;background:var(--paper-hi);color:var(--ink);\n    border:1.5px solid var(--ink);padding:7px 11px;cursor:pointer;\n  }\n  button:hover{background:var(--ink);color:var(--paper-hi)}\n  button[aria-pressed=\"true\"]{background:var(--ink);color:var(--paper-hi)}\n  button:focus-visible{outline:2px solid var(--l2);outline-offset:2px}\n\n  /* ---------- solution sheet ---------- */\n  .step{\n    display:grid;grid-template-columns:1fr auto;gap:2px 12px;\n    padding:9px 12px;border-bottom:1px solid var(--rule);\n  }\n  .step:last-of-type{border-bottom:none}\n  .step:hover{background:var(--paper)}\n  .step .idx{\n    font-family:\"IBM Plex Mono\",monospace;font-size:10px;color:var(--ink-soft);\n    letter-spacing:.14em;grid-column:1/-1;\n  }\n  .step .name{font-size:13.5px;font-weight:500}\n  .step .formula{\n    grid-column:1/2;font-family:\"IBM Plex Mono\",monospace;font-size:11.5px;\n    color:var(--ink-soft);line-height:1.45;\n  }\n  .step .val{\n    grid-column:2/3;grid-row:2/4;align-self:center;text-align:right;\n    font-family:\"IBM Plex Mono\",monospace;font-size:13px;font-weight:600;white-space:nowrap;\n  }\n  .note{font-size:12.5px;color:var(--ink-soft);padding:11px 12px 13px;margin:0;border-top:1px solid var(--rule)}\n  .note code{font-family:\"IBM Plex Mono\",monospace;background:var(--paper);padding:1px 4px}\n  #reachFlag.bad{color:var(--l4)}\n  footer{\n    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;\n    border-top:1.5px solid var(--ink);margin-top:18px;padding-top:10px;\n    font-family:\"IBM Plex Mono\",monospace;font-size:10.5px;\n    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);\n  }\n  @media (prefers-reduced-motion:reduce){*{transition:none!important}}\n/* CARL portfolio dark theme */\n:host{--paper:#0b0e12;--paper-hi:#171d25;--ink:#f1f3f5;--ink-soft:#a3aebb;--grid:#303a46;--rule:#38424f;--joint:#35b6f0;--foot:#4fc88d}\nbutton:hover,button[aria-pressed=\"true\"]{background:#ff794a;color:#10151b}\n:host{background:var(--paper);color:var(--ink)}\n.back-link{display:inline-block;color:#ff794a;text-decoration:none;font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.05em;margin-bottom:18px}.back-link:hover{text-decoration:underline}\n\n:host{display:block;width:100%;font-family:\"IBM Plex Sans\",system-ui,sans-serif;line-height:1.5;background:#0b0e12;color:#f1f3f5} .wrap{max-width:none;margin:0;padding:0} .masthead{display:none} .back-link{display:none}";
+root.appendChild(style);
+const content=document.createElement('div');
+content.innerHTML="<div class=\"wrap\">\n\n  \n\n  <div class=\"bench\">\n\n    <!-- =============== stage =============== -->\n    <div>\n      <div class=\"plate\">\n        <div class=\"plate-label\"><span>Mechanism</span><span id=\"statusText\"></span></div>\n        <svg id=\"stage\" viewBox=\"0 0 660 570\" role=\"img\" aria-label=\"Five-bar leg linkage\">\n          <path id=\"wspace\" class=\"ws fade\"></path>\n          <polyline id=\"trace\" class=\"fade h-foot\" points=\"\" style=\"display:none\"></polyline>\n\n          <line id=\"vertA\" class=\"guide fade h-out\"></line>\n          <line id=\"vertB\" class=\"guide fade h-k h-out\"></line>\n          <line id=\"extK\"  class=\"guide fade h-psi\" style=\"stroke:var(--l4);opacity:.55\"></line>\n          <line id=\"reachE\" class=\"reachline fade h-reach h-p1\"></line>\n\n          <line id=\"hipbar\" class=\"fade h-k h-p1 h-out\"></line>\n          <line id=\"lnL2\"  class=\"lk fade h-k h-out\"></line>\n          <line id=\"lnL41\" class=\"lk fade h-psi h-e\"></line>\n          <line id=\"lnL42\" class=\"lk fade h-foot h-psi h-k\"></line>\n          <line id=\"lnL3\"  class=\"lk fade h-p1 h-reach\"></line>\n          <line id=\"lnL1\"  class=\"lk fade h-p1 h-out\"></line>\n\n          <path id=\"arcT2\" class=\"arc fade h-k h-out\"></path>\n          <path id=\"arcT1\" class=\"arc fade h-p1 h-out\"></path>\n          <path id=\"arcK\"  class=\"arc k fade h-psi\"></path>\n\n          <circle id=\"pivA\" class=\"pivot fade h-p1 h-out\" r=\"6\"></circle>\n          <circle id=\"pivB\" class=\"pivot fade h-k h-out\" r=\"6\"></circle>\n          <circle id=\"jP1\"  class=\"joint fade h-p1\" r=\"6\"></circle>\n          <circle id=\"jE\"   class=\"joint fade h-e h-reach\" r=\"6\"></circle>\n          <circle id=\"jK\"   class=\"joint fade h-k h-psi\" r=\"6\"></circle>\n\n          <text id=\"labL1\" class=\"lab l1 fade h-p1 h-out\">L₁</text>\n          <text id=\"labL2\" class=\"lab l2 fade h-k h-out\">L₂</text>\n          <text id=\"labL3\" class=\"lab l3 fade h-p1 h-reach\">L₃</text>\n          <text id=\"labL41\" class=\"lab l4 fade h-psi h-e\">L₄.₁</text>\n          <text id=\"labL42\" class=\"lab l4 fade h-foot h-psi\">L₄.₂</text>\n          <text id=\"labK\"  class=\"lab l4 fade h-psi\">κ</text>\n          <text id=\"labT1\" class=\"lab big fade h-p1 h-out\">θ₁</text>\n          <text id=\"labT2\" class=\"lab big fade h-k h-out\">θ₂</text>\n          <text id=\"labA\"  class=\"lab fade h-p1 h-out\">A</text>\n          <text id=\"labB\"  class=\"lab fade h-k h-out\">B</text>\n          <text id=\"labE\"  class=\"lab fade h-e h-reach\">E</text>\n          <text id=\"labKp\" class=\"lab fade h-k h-psi\">K</text>\n          <text id=\"labP1\" class=\"lab fade h-p1\">P₁</text>\n\n          <g id=\"handle\" class=\"fade h-foot\" tabindex=\"0\"\n             aria-label=\"Foot target — drag, or use arrow keys to nudge\">\n            <circle id=\"halo\" r=\"17\"></circle>\n            <circle id=\"footdot\" r=\"7\"></circle>\n            <text id=\"footlab\" class=\"lab big\"></text>\n          </g>\n        </svg>\n        <div class=\"btnrow\">\n          <button id=\"playBtn\" aria-pressed=\"false\">Play walk cycle</button>\n          <button id=\"wsBtn\" aria-pressed=\"true\">Hide workspace</button>\n          <button id=\"brK\" aria-pressed=\"false\">Flip L₂ branch</button>\n          <button id=\"brP\" aria-pressed=\"false\">Flip L₁ branch</button>\n          <button id=\"resetBtn\">Reset</button>\n        </div>\n      </div>\n    </div>\n\n    <!-- =============== controls + sheet =============== -->\n    <div>\n      <div class=\"plate\">\n        <div class=\"plate-label\"><span>Geometry</span><span id=\"paraFlag\"></span></div>\n        <div class=\"plate-body\">\n          <div class=\"ctls\">\n            <div class=\"ctl\"><label for=\"sL1\"><span><span class=\"swatch\" style=\"background:var(--l1)\"></span>L₁ driven</span><b id=\"vL1\"></b></label><input id=\"sL1\" type=\"range\" min=\"30\" max=\"180\" step=\"1\" value=\"85\"></div>\n            <div class=\"ctl\"><label for=\"sL2\"><span><span class=\"swatch\" style=\"background:var(--l2)\"></span>L₂ driven</span><b id=\"vL2\"></b></label><input id=\"sL2\" type=\"range\" min=\"50\" max=\"260\" step=\"1\" value=\"150\"></div>\n            <div class=\"ctl\"><label for=\"sL3\"><span><span class=\"swatch\" style=\"background:var(--l3)\"></span>L₃ passive</span><b id=\"vL3\"></b></label><input id=\"sL3\" type=\"range\" min=\"50\" max=\"260\" step=\"1\" value=\"150\"></div>\n            <div class=\"ctl\"><label for=\"sL41\"><span><span class=\"swatch\" style=\"background:var(--l4)\"></span>L₄.₁ passive</span><b id=\"vL41\"></b></label><input id=\"sL41\" type=\"range\" min=\"30\" max=\"180\" step=\"1\" value=\"85\"></div>\n            <div class=\"ctl\"><label for=\"sL42\"><span><span class=\"swatch\" style=\"background:var(--l4)\"></span>L₄.₂ to foot</span><b id=\"vL42\"></b></label><input id=\"sL42\" type=\"range\" min=\"30\" max=\"260\" step=\"1\" value=\"140\"></div>\n            <div class=\"ctl\"><label for=\"sK\"><span>Kink κ</span><b id=\"vK\"></b></label><input id=\"sK\" type=\"range\" min=\"-45\" max=\"60\" step=\"0.5\" value=\"15\"></div>\n            <div class=\"ctl\"><label for=\"sD\"><span>Shaft offset d</span><b id=\"vD\"></b></label><input id=\"sD\" type=\"range\" min=\"0\" max=\"120\" step=\"1\" value=\"0\"></div>\n            <div class=\"sub\">Walk cycle</div>\n            <div class=\"ctl\"><label for=\"sStep\"><span>Step length</span><b id=\"vStep\"></b></label><input id=\"sStep\" type=\"range\" min=\"20\" max=\"220\" step=\"1\" value=\"110\"></div>\n            <div class=\"ctl\"><label for=\"sLift\"><span>Foot lift</span><b id=\"vLift\"></b></label><input id=\"sLift\" type=\"range\" min=\"5\" max=\"90\" step=\"1\" value=\"40\"></div>\n            <div class=\"ctl\"><label for=\"sDepth\"><span>Stance depth</span><b id=\"vDepth\"></b></label><input id=\"sDepth\" type=\"range\" min=\"60\" max=\"340\" step=\"1\" value=\"200\"></div>\n            <div class=\"ctl\"><label for=\"sOff\"><span>Stance offset x</span><b id=\"vOff\"></b></label><input id=\"sOff\" type=\"range\" min=\"-140\" max=\"140\" step=\"1\" value=\"0\"></div>\n          </div>\n        </div>\n      </div>\n\n      <section class=\"plate\" aria-label=\"Worked solution\">\n        <div class=\"plate-label\"><span>Worked solution</span><span id=\"reachFlag\">in range</span></div>\n\n        <div class=\"step\" data-hl=\"foot\">\n          <span class=\"idx\">Given</span>\n          <span class=\"name\">Foot target, measured from the shaft axis</span>\n          <span class=\"formula\">F = (x, y), y positive downward</span>\n          <span class=\"val\" id=\"oF\"></span>\n        </div>\n\n        <div class=\"step\" data-hl=\"k\">\n          <span class=\"idx\">Step 1</span>\n          <span class=\"name\">Kink joint K — circle ∩ circle</span>\n          <span class=\"formula\">|K − B| = L₂ and |K − F| = L₄.₂<br>θ₂ = atan2(K<sub>x</sub>−B<sub>x</sub>, K<sub>y</sub>)</span>\n          <span class=\"val\" id=\"oK\"></span>\n        </div>\n\n        <div class=\"step\" data-hl=\"psi\">\n          <span class=\"idx\">Step 2</span>\n          <span class=\"name\">Orientation of the rigid L₄ body</span>\n          <span class=\"formula\">ψ = ∠(K→F) rotated back by 180°−κ</span>\n          <span class=\"val\" id=\"oPsi\"></span>\n        </div>\n\n        <div class=\"step\" data-hl=\"e\">\n          <span class=\"idx\">Step 3</span>\n          <span class=\"name\">Far pin E, where L₄.₁ meets L₃</span>\n          <span class=\"formula\">E = K + L₄.₁ · û(ψ)</span>\n          <span class=\"val\" id=\"oE\"></span>\n        </div>\n\n        <div class=\"step\" data-hl=\"reach\">\n          <span class=\"idx\">Step 4</span>\n          <span class=\"name\">Reach check on the L₁–L₃ pair</span>\n          <span class=\"formula\">r = |E − A|, need |L₁−L₃| ≤ r ≤ L₁+L₃</span>\n          <span class=\"val\" id=\"oR\"></span>\n        </div>\n\n        <div class=\"step\" data-hl=\"p1\">\n          <span class=\"idx\">Step 5</span>\n          <span class=\"name\">Elbow P₁ — circle ∩ circle</span>\n          <span class=\"formula\">|P₁ − A| = L₁ and |P₁ − E| = L₃</span>\n          <span class=\"val\" id=\"oP1\"></span>\n        </div>\n\n        <div class=\"step\" data-hl=\"out\">\n          <span class=\"idx\">Result</span>\n          <span class=\"name\">Shaft angles you command</span>\n          <span class=\"formula\">θ₁ = atan2(P₁<sub>x</sub>−A<sub>x</sub>, P₁<sub>y</sub>)<br>θ₂ from step 1 — both zero pointing straight down, positive toward +x</span>\n          <span class=\"val\" id=\"oTh\"></span>\n        </div>\n\n        <p class=\"note\">No iteration anywhere: the foot fixes K by two circles, K and κ fix the whole L₄ body, and E then fixes P₁ by two more circles. Each intersection has two roots — the flip buttons pick the other assembly mode. With <code>L₁ = L₄.₁</code> and <code>L₂ = L₃</code> the loop is a parallelogram, so L₄ stays parallel to L₁ and the foot reduces to <code>F = L₂·û(θ₂) + L₄.₂·û(θ₁+180°−κ)</code>.</p>\n      </section>\n    </div>\n  </div>\n\n  <footer>\n    <span>Two driven links · one rigid bent distal body · one foot</span>\n    <span>Solved analytically</span>\n  </footer>\n</div>\n\n";
+root.appendChild(content);
+
+(function(){
+  "use strict";
+  const $ = id => root.getElementById(id);
+  const stage = $("stage");
+  const DEG = 180/Math.PI, RAD = Math.PI/180;
+
+  const CX = 330, CY = 150;
+  let S = 1;
+
+  const st = {
+    L1:85, L2:150, L3:150, L41:85, L42:140, kink:15*RAD, d:0,
+    x:0, y:200, sK:+1, sP:+1, walking:false, phase:0, showWs:true
+  };
+  let gait = {step:110, lift:40, depth:200, off:0};
+  let pose = null;          // last successfully solved pose
+  let solvable = true;
+
+  const px = p => [CX + S*p.x, CY + S*p.y];
+  function scaleFor(){ return Math.min(1.45, 300/(st.L2+st.L42)); }
+
+  // ---- circle ∩ circle --------------------------------------------------
+  function ci(P, rP, Q, rQ, sign){
+    const dx=Q.x-P.x, dy=Q.y-P.y, d=Math.hypot(dx,dy);
+    if(d<1e-9) return null;
+    if(d>rP+rQ-1e-9 || d<Math.abs(rP-rQ)+1e-9) return null;
+    const a=(d*d+rP*rP-rQ*rQ)/(2*d);
+    const h=Math.sqrt(Math.max(0,rP*rP-a*a));
+    const ux=dx/d, uy=dy/d;
+    return { x:P.x+a*ux + sign*h*(-uy), y:P.y+a*uy + sign*h*ux };
+  }
+
+  // ---- inverse kinematics ----------------------------------------------
+  function solveIK(fx, fy){
+    const A = {x:-st.d/2, y:0}, B = {x:+st.d/2, y:0}, F = {x:fx, y:fy};
+
+    const K = ci(B, st.L2, F, st.L42, st.sK);
+    if(!K) return null;
+
+    const vx=F.x-K.x, vy=F.y-K.y, n=Math.hypot(vx,vy);
+    const a = -(Math.PI - st.kink), c=Math.cos(a), s=Math.sin(a);
+    const ex=(vx*c - vy*s)/n, ey=(vx*s + vy*c)/n;
+    const E = {x:K.x + st.L41*ex, y:K.y + st.L41*ey};
+
+    const r = Math.hypot(E.x-A.x, E.y-A.y);
+    const P1 = ci(A, st.L1, E, st.L3, st.sP);
+    if(!P1) return null;
+
+    return {
+      A,B,F,K,E,P1,r,
+      psi: Math.atan2(ex, ey),
+      th1: Math.atan2(P1.x-A.x, P1.y-A.y),
+      th2: Math.atan2(K.x-B.x, K.y-B.y)
+    };
+  }
+
+  // ---- svg helpers ------------------------------------------------------
+  function line(el,p,q){ const a=px(p),b=px(q);
+    el.setAttribute("x1",a[0].toFixed(2));el.setAttribute("y1",a[1].toFixed(2));
+    el.setAttribute("x2",b[0].toFixed(2));el.setAttribute("y2",b[1].toFixed(2)); }
+  function dot(el,p){ const a=px(p); el.setAttribute("cx",a[0].toFixed(2));el.setAttribute("cy",a[1].toFixed(2)); }
+  function text(el,p,dx,dy,s){ const a=px(p);
+    el.setAttribute("x",(a[0]+dx).toFixed(2));el.setAttribute("y",(a[1]+dy).toFixed(2));
+    if(s!==undefined) el.textContent=s; }
+  function arc(el,c,rad,a0,a1){
+    const C=px(c); let d=a1-a0;
+    while(d>Math.PI) d-=2*Math.PI; while(d<-Math.PI) d+=2*Math.PI;
+    const x0=C[0]+rad*Math.cos(a0), y0=C[1]+rad*Math.sin(a0);
+    const x1=C[0]+rad*Math.cos(a0+d), y1=C[1]+rad*Math.sin(a0+d);
+    el.setAttribute("d",`M${x0.toFixed(2)} ${y0.toFixed(2)} A${rad} ${rad} 0 0 ${d>0?1:0} ${x1.toFixed(2)} ${y1.toFixed(2)}`);
+  }
+  const scr = (p,q) => Math.atan2(px(q)[1]-px(p)[1], px(q)[0]-px(p)[0]);
+  const mid = (p,q) => ({x:(p.x+q.x)/2, y:(p.y+q.y)/2});
+  const mm = v => v.toFixed(1);
+  const dg = v => (v*DEG).toFixed(1)+"°";
+  const pt = p => `(${mm(p.x)}, ${mm(p.y)})`;
+
+  // ---- workspace (sampled through the same IK) --------------------------
+  function buildWorkspace(){
+    const R = st.L2 + st.L42;
+    const x0=-R, x1=R, y0=-0.45*R, y1=R, N=104;
+    const hx=(x1-x0)/N, hy=(y1-y0)/N;
+    let d="";
+    for(let i=0;i<=N;i++){
+      const X=x0+i*hx;
+      for(let j=0;j<=N;j++){
+        const Y=y0+j*hy;
+        if(solveIK(X,Y)){ const p=px({x:X,y:Y}); d+=`M${p[0].toFixed(1)} ${p[1].toFixed(1)}h0.01`; }
+      }
+    }
+    $("wspace").setAttribute("d", d);
+  }
+
+  // ---- render -----------------------------------------------------------
+  function render(){
+    S = scaleFor();
+    const sol = solveIK(st.x, st.y);
+    solvable = !!sol;
+    if(sol) pose = sol;
+    stage.classList.toggle("stale", !solvable);
+    if(!pose){ $("statusText").textContent="no assembly"; return; }
+
+    const {A,B,K,E,P1,r,psi,th1,th2} = pose;
+    const F = {x:st.x, y:st.y};
+    const Fp = pose.F;
+
+    line($("hipbar"), A, B);
+    line($("lnL1"), A, P1);
+    line($("lnL3"), P1, E);
+    line($("lnL41"), E, K);
+    line($("lnL42"), K, Fp);
+    line($("lnL2"), B, K);
+    line($("reachE"), A, E);
+
+    line($("vertA"), A, {x:A.x, y:44/S});
+    line($("vertB"), B, {x:B.x, y:64/S});
+
+    // backward extension of L4.2 through K — the thin reference line
+    const ux=(Fp.x-K.x)/st.L42, uy=(Fp.y-K.y)/st.L42;
+    line($("extK"), K, {x:K.x - ux*st.L41*1.15, y:K.y - uy*st.L41*1.15});
+
+    dot($("pivA"), A); dot($("pivB"), B);
+    dot($("jP1"), P1); dot($("jE"), E); dot($("jK"), K);
+
+    arc($("arcT1"), A, 34, Math.PI/2, scr(A,P1));
+    arc($("arcT2"), B, 50, Math.PI/2, scr(B,K));
+    arc($("arcK"),  K, 30, Math.atan2(-uy,-ux), scr(K,E));
+
+    text($("labL1"),  mid(A,P1),  10, -6, "L₁ "+mm(st.L1));
+    text($("labL3"),  mid(P1,E),  -8, -8, "L₃ "+mm(st.L3));
+    text($("labL41"), mid(E,K),  -34,  0, "L₄.₁ "+mm(st.L41));
+    text($("labL42"), mid(K,Fp),  12,  4, "L₄.₂ "+mm(st.L42));
+    text($("labL2"),  mid(B,K),    6, -8, "L₂ "+mm(st.L2));
+    text($("labK"),   K,          -8, -30, "κ "+dg(st.kink));
+    text($("labT1"),  A,         -66,  30, "θ₁ "+dg(th1));
+    text($("labT2"),  B,          14,  60, "θ₂ "+dg(th2));
+    text($("labA"),   A,         -18, -12, "A");
+    text($("labB"),   B,          10, -12, "B");
+    text($("labE"),   E,         -20,  -12, "E");
+    text($("labKp"),  K,         -18,  16, "K");
+    text($("labP1"),  P1,         10, -12, "P₁");
+
+    const f = px(F);
+    $("handle").setAttribute("transform",`translate(${f[0].toFixed(2)},${f[1].toFixed(2)})`);
+    $("halo").setAttribute("cx",0);$("halo").setAttribute("cy",0);
+    $("footdot").setAttribute("cx",0);$("footdot").setAttribute("cy",0);
+    $("footlab").setAttribute("x",14);$("footlab").setAttribute("y",22);
+    $("footlab").textContent = pt(F);
+
+    $("oF").textContent   = pt(F);
+    $("oK").textContent   = pt(K)+"  θ₂ "+dg(th2);
+    $("oPsi").textContent = dg(psi);
+    $("oE").textContent   = pt(E);
+    $("oR").textContent   = mm(r)+"  ∈ ["+mm(Math.abs(st.L1-st.L3))+", "+mm(st.L1+st.L3)+"]";
+    $("oP1").textContent  = pt(P1);
+    $("oTh").textContent  = "θ₁ "+dg(th1)+"  θ₂ "+dg(th2);
+
+    $("reachFlag").textContent = solvable ? "in range" : "out of reach";
+    $("reachFlag").classList.toggle("bad", !solvable);
+    $("statusText").textContent = st.walking
+      ? "Walking · phase "+(st.phase*100).toFixed(0)+"%"
+      : (solvable ? "θ₁ "+dg(th1)+" · θ₂ "+dg(th2) : "target unreachable · showing last pose");
+
+    const para = Math.abs(st.L1-st.L41)<0.5 && Math.abs(st.L2-st.L3)<0.5;
+    $("paraFlag").textContent = para ? "parallelogram" : "general four-bar";
+  }
+
+  // ---- walk trajectory --------------------------------------------------
+  function walkPoint(t){
+    if(t < 0.6){ const u=t/0.6; return [gait.off + gait.step/2 - u*gait.step, gait.depth]; }
+    const u=(t-0.6)/0.4;
+    return [gait.off - gait.step/2 + u*gait.step, gait.depth - gait.lift*Math.sin(Math.PI*u)];
+  }
+  function buildTrace(){
+    const pts=[];
+    for(let i=0;i<=140;i++){
+      const [x,y]=walkPoint(i/140); const s=px({x,y});
+      pts.push(s[0].toFixed(1)+","+s[1].toFixed(1));
+    }
+    $("trace").setAttribute("points",pts.join(" "));
+  }
+
+  let last=0;
+  function tick(ts){
+    if(!st.walking) return;
+    if(!last) last=ts;
+    st.phase = (st.phase + (ts-last)/1700) % 1;
+    last = ts;
+    const [x,y] = walkPoint(st.phase);
+    st.x=x; st.y=y;
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  // ---- dragging ---------------------------------------------------------
+  function toLocal(evt){
+    const p = stage.createSVGPoint();
+    p.x = evt.clientX; p.y = evt.clientY;
+    const q = p.matrixTransform(stage.getScreenCTM().inverse());
+    return [(q.x-CX)/S, (q.y-CY)/S];
+  }
+  let dragging=false;
+  function startDrag(e){
+    dragging=true;
+    if(st.walking) stopWalk();
+    $("handle").focus({preventScroll:true});
+    moveDrag(e); e.preventDefault();
+  }
+  function moveDrag(e){
+    if(!dragging) return;
+    const [x,y]=toLocal(e);
+    st.x=x; st.y=y; render();
+  }
+  $("handle").addEventListener("pointerdown", startDrag);
+  stage.addEventListener("pointerdown", e => { if(e.target.closest("#handle")) return; startDrag(e); });
+  window.addEventListener("pointermove", moveDrag);
+  window.addEventListener("pointerup", ()=>{ dragging=false; });
+
+  $("handle").addEventListener("keydown", e=>{
+    const k = e.shiftKey ? 10 : 2;
+    const map = {ArrowLeft:[-k,0],ArrowRight:[k,0],ArrowUp:[0,-k],ArrowDown:[0,k]};
+    if(!map[e.key]) return;
+    if(st.walking) stopWalk();
+    st.x += map[e.key][0]; st.y += map[e.key][1];
+    render(); e.preventDefault();
+  });
+
+  // ---- hover isolation --------------------------------------------------
+  root.querySelectorAll(".step").forEach(row=>{
+    const on = ()=> stage.setAttribute("data-hl", row.dataset.hl);
+    const off = ()=> stage.removeAttribute("data-hl");
+    row.addEventListener("mouseenter",on); row.addEventListener("mouseleave",off);
+    row.addEventListener("focusin",on);    row.addEventListener("focusout",off);
+  });
+
+  // ---- controls ---------------------------------------------------------
+  function bind(id,label,fmt,apply,heavy){
+    const el=$(id);
+    const upd=()=>{ apply(+el.value); $(label).textContent=fmt(+el.value);
+      if(heavy) buildWorkspace();
+      buildTrace(); render(); };
+    el.addEventListener("input",upd); upd();
+  }
+  const asMM = v => v+" mm";
+  const asDeg = v => v+"°";
+  bind("sL1","vL1",asMM,v=>st.L1=v,true);
+  bind("sL2","vL2",asMM,v=>st.L2=v,true);
+  bind("sL3","vL3",asMM,v=>st.L3=v,true);
+  bind("sL41","vL41",asMM,v=>st.L41=v,true);
+  bind("sL42","vL42",asMM,v=>st.L42=v,true);
+  bind("sK","vK",asDeg,v=>st.kink=v*RAD,true);
+  bind("sD","vD",asMM,v=>st.d=v,true);
+  bind("sStep","vStep",asMM,v=>gait.step=v);
+  bind("sLift","vLift",asMM,v=>gait.lift=v);
+  bind("sDepth","vDepth",asMM,v=>gait.depth=v);
+  bind("sOff","vOff",asMM,v=>gait.off=v);
+
+  function stopWalk(){
+    st.walking=false; last=0;
+    $("playBtn").setAttribute("aria-pressed","false");
+    $("playBtn").textContent="Play walk cycle";
+    $("trace").style.display="none";
+    render();
+  }
+  $("playBtn").addEventListener("click",()=>{
+    if(st.walking){ stopWalk(); return; }
+    st.walking=true; last=0;
+    $("playBtn").setAttribute("aria-pressed","true");
+    $("playBtn").textContent="Pause walk cycle";
+    buildTrace(); $("trace").style.display="";
+    requestAnimationFrame(tick);
+  });
+  $("wsBtn").addEventListener("click",()=>{
+    st.showWs=!st.showWs;
+    $("wspace").style.display = st.showWs?"":"none";
+    $("wsBtn").setAttribute("aria-pressed",String(st.showWs));
+    $("wsBtn").textContent = st.showWs?"Hide workspace":"Show workspace";
+  });
+  $("brK").addEventListener("click",()=>{
+    st.sK*=-1; $("brK").setAttribute("aria-pressed",String(st.sK<0));
+    buildWorkspace(); render();
+  });
+  $("brP").addEventListener("click",()=>{
+    st.sP*=-1; $("brP").setAttribute("aria-pressed",String(st.sP<0));
+    buildWorkspace(); render();
+  });
+  $("resetBtn").addEventListener("click",()=>{
+    stopWalk();
+    st.sK=1; st.sP=1;
+    $("brK").setAttribute("aria-pressed","false"); $("brP").setAttribute("aria-pressed","false");
+    const d={sL1:85,sL2:150,sL3:150,sL41:85,sL42:140,sK:15,sD:0,
+             sStep:110,sLift:40,sDepth:200,sOff:0};
+    for(const k in d){ $(k).value=d[k]; }
+    for(const k in d){ $(k).dispatchEvent(new Event("input")); }
+    st.x=0; st.y=200; buildWorkspace(); render();
+  });
+
+  buildWorkspace(); buildTrace(); render();
+})();
+
+})();
