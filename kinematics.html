@@ -122,7 +122,7 @@
   .ctl label b{color:var(--ink);font-weight:600}
   input[type=range]{width:100%;margin:4px 0 0;accent-color:var(--l2);height:18px}
   input[type=range]:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-  .swatch{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+  .ctl .range-entry{display:flex;align-items:center;gap:8px;margin-top:4px}\n  .ctl .range-entry input[type=range]{flex:1;min-width:0;margin:0}\n  .ctl .range-entry input[type=number]{width:75px;min-width:0;padding:5px 6px;background:var(--paper-hi);border:1px solid var(--rule);color:var(--ink);font:12px "IBM Plex Mono",monospace}\n  .linked-note{font:11px "IBM Plex Mono",monospace;color:var(--ink-soft);margin-top:8px}\n  .swatch{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:baseline}
   .sub{grid-column:1/-1;font-family:"IBM Plex Mono",monospace;font-size:10px;
     letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
     border-top:1px solid var(--rule);padding-top:9px;margin-top:3px}
@@ -256,8 +256,8 @@ body{background:var(--paper);color:var(--ink)}
           <div class="ctls">
             <div class="ctl"><label for="sL1"><span><span class="swatch" style="background:var(--l1)"></span>L₁ driven</span><b id="vL1"></b></label><input id="sL1" type="range" min="30" max="180" step="1" value="85"></div>
             <div class="ctl"><label for="sL2"><span><span class="swatch" style="background:var(--l2)"></span>L₂ driven</span><b id="vL2"></b></label><input id="sL2" type="range" min="50" max="260" step="1" value="150"></div>
-            <div class="ctl"><label for="sL3"><span><span class="swatch" style="background:var(--l3)"></span>L₃ passive</span><b id="vL3"></b></label><input id="sL3" type="range" min="50" max="260" step="1" value="150"></div>
-            <div class="sub">L₄.₁ is constrained to equal L₁ (coaxial design).</div>
+            <div class="ctl"><label><span><span class="swatch" style="background:var(--l3)"></span>L₃ passive (linked to L₂)</span><b id="vL3">150 mm</b></label><div class="linked-note">Automatically matches L₂</div></div>
+            <div class="sub">L₄.₁ = L₁ and L₃ = L₂ (coupled link lengths).</div>
             <div class="ctl"><label for="sL42"><span><span class="swatch" style="background:var(--l4)"></span>L₄.₂ to foot</span><b id="vL42"></b></label><input id="sL42" type="range" min="30" max="260" step="1" value="140"></div>
             <div class="ctl"><label for="sK"><span>Kink κ</span><b id="vK"></b></label><input id="sK" type="range" min="-45" max="60" step="0.5" value="15"></div>
 
@@ -532,16 +532,36 @@ body{background:var(--paper);color:var(--ink)}
   // ---- controls ---------------------------------------------------------
   function bind(id,label,fmt,apply,heavy){
     const el=$(id);
-    const upd=()=>{ apply(+el.value); $(label).textContent=fmt(+el.value);
+    const numeric=document.createElement("input");
+    numeric.type="number";
+    numeric.id=id+"Number";
+    numeric.setAttribute("aria-label",el.closest(".ctl").querySelector("label span").textContent.trim()+" numeric value");
+    numeric.min=el.min; numeric.max=el.max; numeric.step=el.step;
+    const row=document.createElement("div");
+    row.className="range-entry";
+    el.parentNode.insertBefore(row,el);
+    row.appendChild(el);
+    row.appendChild(numeric);
+    const update=(value)=>{
+      const min=Number(el.min), max=Number(el.max);
+      if(!Number.isFinite(value)) return;
+      const clamped=Math.max(min,Math.min(max,value));
+      el.value=String(clamped);
+      numeric.value=el.value;
+      apply(Number(el.value));
+      $(label).textContent=fmt(Number(el.value));
       if(heavy) buildWorkspace();
-      buildTrace(); render(); };
-    el.addEventListener("input",upd); upd();
+      buildTrace(); render();
+    };
+    el.addEventListener("input",()=>update(Number(el.value)));
+    numeric.addEventListener("change",()=>update(Number(numeric.value)));
+    numeric.addEventListener("keydown",e=>{if(e.key==="Enter"){numeric.blur();}});
+    update(Number(el.value));
   }
   const asMM = v => v+" mm";
   const asDeg = v => v+"°";
   bind("sL1","vL1",asMM,v=>{st.L1=v;st.L41=v;},true);
-  bind("sL2","vL2",asMM,v=>st.L2=v,true);
-  bind("sL3","vL3",asMM,v=>st.L3=v,true);
+  bind("sL2","vL2",asMM,v=>{st.L2=v;st.L3=v;$("vL3").textContent=asMM(v);},true);
   bind("sL42","vL42",asMM,v=>st.L42=v,true);
   bind("sK","vK",asDeg,v=>st.kink=v*RAD,true);
   bind("sStep","vStep",asMM,v=>gait.step=v);
@@ -582,7 +602,7 @@ body{background:var(--paper);color:var(--ink)}
     stopWalk();
     st.leg="right";
     $("legRight").setAttribute("aria-pressed","true"); $("legLeft").setAttribute("aria-pressed","false");
-    const d={sL1:85,sL2:150,sL3:150,sL42:140,sK:15,
+    const d={sL1:85,sL2:150,sL42:140,sK:15,
              sStep:110,sLift:40,sDepth:200,sOff:0};
     for(const k in d){ $(k).value=d[k]; }
     for(const k in d){ $(k).dispatchEvent(new Event("input")); }
