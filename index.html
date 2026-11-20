@@ -75,9 +75,9 @@
       <div class="architecture-diagram"><section class="architecture-flow" aria-label="Interactive control architecture">
 <button class="architecture-node" data-id="xbox"><small>01 / OPERATOR INPUT</small><strong>Xbox controller</strong><span>Bluetooth · evdev · operator commands</span></button>
 <div class="architecture-arrow"><b>↓</b> user input</div>
-<button class="node" data-id="pi"><small>02 / MAIN COMPUTER</small><strong>Raspberry Pi 4 · Python</strong><span>Controller mapping · motion targets · homing · leg IK</span></button>
+<button class="architecture-node" data-id="pi"><small>02 / MAIN COMPUTER</small><strong>Raspberry Pi 4 · Python</strong><span>Controller mapping · motion targets · homing · leg IK</span></button>
 <div class="architecture-arrow"><b>↓</b> motor commands</div>
-<button class="node" data-id="hat"><small>03 / CAN INTERFACE</small><strong>mjbots Pi3Hat</strong><span>Four independent CAN-FD buses · onboard IMU</span></button>
+<button class="architecture-node" data-id="hat"><small>03 / CAN INTERFACE</small><strong>mjbots Pi3Hat</strong><span>Four independent CAN-FD buses · onboard IMU</span></button>
 <div class="architecture-arrow"><b>↓</b> CAN-FD</div>
 <div class="architecture-split">
 <button class="architecture-node architecture-bus" data-id="b1"><small>BUS 1</small><strong>Front right</strong><span>3 · 2 · 1</span></button>
@@ -86,7 +86,7 @@
 <button class="architecture-node architecture-bus" data-id="b4"><small>BUS 4</small><strong>Back left</strong><span>12 · 10 · 11</span></button>
 </div>
 <div class="architecture-arrow"><b>↓</b> position / torque commands</div>
-<button class="node" data-id="motors"><small>04 / ACTUATION</small><strong>12 Moteus controllers + 12 BLDC motors</strong><span>3 actuated joints per leg · capstan transmissions</span></button>
+<button class="architecture-node" data-id="motors"><small>04 / ACTUATION</small><strong>12 Moteus controllers + 12 BLDC motors</strong><span>3 actuated joints per leg · capstan transmissions</span></button>
 <div class="architecture-legend"><span>Solid blocks = implemented hardware / software components</span><span>3D IK integration and gait control remain in development</span></div>
 </section>
 <aside class="architecture-detail" aria-live="polite"><div class="architecture-kicker" id="detailTag">SELECTED COMPONENT</div><h2 id="detailTitle"></h2><p id="detailBody"></p><ul id="detailList"></ul></aside></div>
