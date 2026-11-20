@@ -274,7 +274,7 @@ body{background:var(--paper);color:var(--ink)}
         <div class="plate-body">
           <p>Target foot position (x, y): <strong id="oF"></strong></p>
           <p>Joint angles: <strong id="oTh"></strong></p>
-          <p class="note">Joint limits: θ₁ −85° to 155°; θ₂ −102.732° to 17.268°. Angle between L₁ and L₂: greater than 47.1° and at most 152.2°. Invalid targets are rejected.</p>
+          <p class="note">Angles measured clockwise from vertically upwards. Joint limits: θ₁ −95° to 25°; θ₂ 162.732° to 282.732° (wraps through ±180°). Relative opening angle between L₁ and L₂: greater than 47.1° and at most 152.2°. Invalid targets are rejected.</p>
         </div>
       </section>
     </div>
@@ -318,7 +318,7 @@ body{background:var(--paper);color:var(--ink)}
     return { x:P.x+a*ux + sign*h*(-uy), y:P.y+a*uy + sign*h*ux };
   }
 
-  // ---- inverse kinematics ----------------------------------------------
+  // Angles are clockwise from upward (negative screen y).\n  const jointAngle = (from,to) => Math.atan2(to.x-from.x, from.y-to.y);\n  const wrap360 = deg => ((deg%360)+360)%360;\n  const theta2Allowed = deg => { const wrapped=wrap360(deg); return wrapped>=162.732-1e-8 && wrapped<=282.732+1e-8; };\n  const openingAngle = (a,b) => Math.acos(Math.max(-1,Math.min(1,Math.cos(a-b))))*DEG;\n\n  // ---- inverse kinematics ----------------------------------------------
   function solveIK(fx, fy){
     const A = {x:-st.d/2, y:0}, B = {x:+st.d/2, y:0}, F = {x:fx, y:fy};
 
@@ -333,18 +333,18 @@ body{background:var(--paper);color:var(--ink)}
     const r = Math.hypot(E.x-A.x, E.y-A.y);
     const candidates = [+1,-1].map(sign=>ci(A,st.L1,E,st.L3,sign)).filter(Boolean);
     const P1 = candidates.find(p=>{
-      const t1=Math.atan2(p.x-A.x,p.y-A.y)*DEG;
-      const t2=Math.atan2(K.x-B.x,K.y-B.y)*DEG;
-      const between=Math.abs(((t1-t2+540)%360)-180);
-      return t1>=-85 && t1<=155 && t2>=-102.732 && t2<=17.268 && between>47.1 && between<=152.2;
+      const t1=jointAngle(A,p), t2=jointAngle(B,K);
+      const relative=openingAngle(t1,t2);
+      return t1*DEG>=-95 && t1*DEG<=25 &&
+        theta2Allowed(t2*DEG) && relative>47.1 && relative<=152.2;
     });
     if(!P1) return null;
 
     return {
       A,B,F,K,E,P1,r,
       psi: Math.atan2(ex, ey),
-      th1: Math.atan2(P1.x-A.x, P1.y-A.y),
-      th2: Math.atan2(K.x-B.x, K.y-B.y)
+      th1: jointAngle(A,P1),
+      th2: jointAngle(B,K)
     };
   }
 
@@ -406,8 +406,8 @@ body{background:var(--paper);color:var(--ink)}
     line($("lnL2"), B, K);
     line($("reachE"), A, E);
 
-    line($("vertA"), A, {x:A.x, y:44/S});
-    line($("vertB"), B, {x:B.x, y:64/S});
+    line($("vertA"), A, {x:A.x, y:-44/S});
+    line($("vertB"), B, {x:B.x, y:-64/S});
 
     // backward extension of L4.2 through K — the thin reference line
     const ux=(Fp.x-K.x)/st.L42, uy=(Fp.y-K.y)/st.L42;
@@ -416,8 +416,8 @@ body{background:var(--paper);color:var(--ink)}
     dot($("pivA"), A); dot($("pivB"), B);
     dot($("jP1"), P1); dot($("jE"), E); dot($("jK"), K);
 
-    arc($("arcT1"), A, 34, Math.PI/2, scr(A,P1));
-    arc($("arcT2"), B, 50, Math.PI/2, scr(B,K));
+    arc($("arcT1"), A, 34, -Math.PI/2, scr(A,P1));
+    arc($("arcT2"), B, 50, -Math.PI/2, scr(B,K));
     arc($("arcK"),  K, 30, Math.atan2(-uy,-ux), scr(K,E));
 
     text($("labL1"),  mid(A,P1),  10, -6, "L₁ "+mm(st.L1));
