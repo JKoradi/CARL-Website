@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0e12"><title>CARL — Interactive Control Architecture</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0e12;--panel:#151c24;--line:#34414d;--text:#edf1f4;--muted:#a5b1bd;--accent:#ff7848;--blue:#75b8ec}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Inter,system-ui,sans-serif}
+main{max-width:1180px;margin:auto;padding:34px 22px 75px}.back{color:var(--accent);font-size:12px;text-decoration:none;font-weight:700}.eyebrow{color:var(--accent);letter-spacing:.18em;font-size:11px;font-weight:700;margin:38px 0 12px}h1{font-size:clamp(35px,6vw,65px);letter-spacing:-.05em;line-height:1.1;margin:0 0 15px}h2{font-size:22px;margin:0 0 8px}p{color:var(--muted)}.intro{max-width:740px}.diagram{margin-top:32px;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-items:start}
+.flow{background:linear-gradient(140deg,#151d26,#0e1319);border:1px solid var(--line);border-radius:12px;padding:25px 22px;min-width:0}
+.node{display:block;width:100%;text-align:left;background:#1a232d;color:var(--text);border:1px solid #40505f;border-radius:9px;padding:16px 18px;cursor:pointer;transition:.18s}.node:hover,.node:focus-visible{border-color:var(--accent);outline:none}.node.active{border-color:var(--accent);background:#302521;box-shadow:0 0 0 1px var(--accent)}.node small{display:block;color:var(--accent);font-size:10px;letter-spacing:.13em;font-weight:800;margin-bottom:4px}.node strong{font-size:17px}.node span{display:block;color:var(--muted);font-size:12px;margin-top:5px}.arrow{display:flex;align-items:center;justify-content:center;gap:12px;height:49px;color:#9ab0c2;font-size:13px}.arrow:before,.arrow:after{content:'';height:1px;max-width:80px;flex:1;background:#3a4855}.arrow b{font-size:20px;color:var(--accent)}.split{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.bus{min-width:0;padding:13px 10px;text-align:center}.bus strong{font-size:13px}.bus span{font-size:11px}.bus small{font-size:9px}.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;color:var(--muted);font-size:11px}.legend span{border:1px solid var(--line);padding:5px 9px;border-radius:4px}
+.detail{position:sticky;top:20px;background:#141b23;border:1px solid var(--line);border-radius:12px;padding:25px}.detail .kicker{color:var(--accent);font-size:10px;font-weight:800;letter-spacing:.16em}.detail p{margin-bottom:16px}.detail ul{padding-left:19px;color:#c4d0da}.detail li{margin:8px 0}.detail code{color:#f5ab89}.footnote{font-size:12px;color:var(--muted);margin-top:22px}
+@media(max-width:900px){.diagram{grid-template-columns:1fr}.detail{position:static}.split{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){main{padding:24px 14px 50px}.flow{padding:16px 12px}.node{padding:12px}.bus{padding:12px 6px}.bus strong{font-size:12px}}
+</style></head><body><main>
+<a class="back" href="index.html">← BACK TO CARL PROJECT</a>
+<div class="eyebrow">INTERACTIVE SYSTEM OVERVIEW / CARL</div>
+<h1>FROM INPUT<br>TO ACTUATION.</h1>
+<p class="intro">Explore the implemented control hardware and software path. Select any block or CAN-FD bus to inspect its role and the motor IDs assigned to each leg.</p>
+<div class="diagram"><section class="flow" aria-label="Interactive control architecture">
+<button class="node" data-id="xbox"><small>01 / OPERATOR INPUT</small><strong>Xbox controller</strong><span>Bluetooth · evdev · operator commands</span></button>
+<div class="arrow"><b>↓</b> user input</div>
+<button class="node" data-id="pi"><small>02 / MAIN COMPUTER</small><strong>Raspberry Pi 4 · Python</strong><span>Controller mapping · motion targets · homing · leg IK</span></button>
+<div class="arrow"><b>↓</b> motor commands</div>
+<button class="node" data-id="hat"><small>03 / CAN INTERFACE</small><strong>mjbots Pi3Hat</strong><span>Four independent CAN-FD buses · onboard IMU</span></button>
+<div class="arrow"><b>↓</b> CAN-FD</div>
+<div class="split">
+<button class="node bus" data-id="b1"><small>BUS 1</small><strong>Front right</strong><span>3 · 2 · 1</span></button>
+<button class="node bus" data-id="b2"><small>BUS 2</small><strong>Back right</strong><span>6 · 5 · 4</span></button>
+<button class="node bus" data-id="b3"><small>BUS 3</small><strong>Front left</strong><span>9 · 7 · 8</span></button>
+<button class="node bus" data-id="b4"><small>BUS 4</small><strong>Back left</strong><span>12 · 10 · 11</span></button>
+</div>
+<div class="arrow"><b>↓</b> position / torque commands</div>
+<button class="node" data-id="motors"><small>04 / ACTUATION</small><strong>12 Moteus controllers + 12 BLDC motors</strong><span>3 actuated joints per leg · capstan transmissions</span></button>
+<div class="legend"><span>Solid blocks = implemented hardware / software components</span><span>3D IK integration and gait control remain in development</span></div>
+</section>
+<aside class="detail" aria-live="polite"><div class="kicker" id="detailTag">SELECTED COMPONENT</div><h2 id="detailTitle"></h2><p id="detailBody"></p><ul id="detailList"></ul></aside></div>
+<p class="footnote">Conceptual data-flow diagram, not an electrical wiring schematic. Joint IDs are CARL's configured assignments; the architecture is not a claim of autonomous walking capability.</p>
+</main><script>
+const details={
+xbox:{tag:"OPERATOR INPUT",title:"Xbox controller",body:"The operator interface connects to the Raspberry Pi over Bluetooth. Python reads button and stick events using evdev.",items:["Controller input is mapped to robot commands.","The control stack can translate operator requests into motion targets.","This diagram represents the current manual-control pathway."]},
+pi:{tag:"MAIN COMPUTER",title:"Raspberry Pi 4",body:"CARL's Python control stack runs on the Raspberry Pi 4 (8 GB) and coordinates the leg motors through the Pi3Hat.",items:["Modular Moteus interface and motor mapping.","Automated staged homing with stall-based endstop detection.","Analytical leg inverse kinematics; full 3D coordinated integration is in development."]},
+hat:{tag:"COMMUNICATION",title:"mjbots Pi3Hat",body:"The Pi3Hat bridges the Raspberry Pi to four CAN-FD buses and also provides an IMU.",items:["One CAN-FD bus per leg.","Motor communication through Moteus controllers.","IMU is available in hardware; no autonomous balance capability is claimed here."]},
+b1:{tag:"CAN-FD BUS 1",title:"Front right leg",body:"Three Moteus motor controllers share CAN-FD bus 1.",items:["Abduction/adduction — motor ID 3","Hip — motor ID 2","Knee — motor ID 1"]},
+b2:{tag:"CAN-FD BUS 2",title:"Back right leg",body:"Three Moteus motor controllers share CAN-FD bus 2.",items:["Abduction/adduction — motor ID 6","Hip — motor ID 5","Knee — motor ID 4"]},
+b3:{tag:"CAN-FD BUS 3",title:"Front left leg",body:"Three Moteus motor controllers share CAN-FD bus 3.",items:["Abduction/adduction — motor ID 9","Hip — motor ID 7","Knee — motor ID 8"]},
+b4:{tag:"CAN-FD BUS 4",title:"Back left leg",body:"Three Moteus motor controllers share CAN-FD bus 4.",items:["Abduction/adduction — motor ID 12","Hip — motor ID 10","Knee — motor ID 11"]},
+motors:{tag:"ACTUATION",title:"Moteus + BLDC motors",body:"Each of CARL's four legs has three actuated degrees of freedom. Each motor is controlled by its own Moteus servo controller.",items:["12 BLDC motors and 12 Moteus controllers.","Custom capstan transmissions at the joints.","Coordinated homing has been tested; locomotion control is ongoing."]}
+};
+const buttons=[...document.querySelectorAll('[data-id]')];function select(id){const d=details[id];buttons.forEach(b=>{const on=b.dataset.id===id;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});document.getElementById('detailTag').textContent=d.tag;document.getElementById('detailTitle').textContent=d.title;document.getElementById('detailBody').textContent=d.body;document.getElementById('detailList').replaceChildren(...d.items.map(t=>{const li=document.createElement('li');li.textContent=t;return li}))}
+buttons.forEach(b=>b.addEventListener('click',()=>select(b.dataset.id)));select('pi');
+</script></body></html>
