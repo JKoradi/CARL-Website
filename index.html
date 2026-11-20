@@ -18,7 +18,7 @@
       <a class="brand" href="#top"><span class="brand-mark">C<span>.</span></span><span>CARL <small>ROBOTICS PROJECT</small></span></a>
       <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation">☰</button>
       <div class="nav-links" id="nav-links">
-        <a href="#overview">Overview</a><a href="#engineering">Engineering</a><a href="#software">Software</a><a href="#simulation">Simulation</a><a href="#progress">Progress</a>
+        <a href="#overview">Overview</a><a href="#engineering">Engineering</a><a href="#software">Software</a><a href="architecture.html">Architecture</a><a href="#simulation">Simulation</a><a href="#progress">Progress</a>
       </div>
     </nav>
   </header>
@@ -54,6 +54,11 @@ Xbox controller / motion targets
               │
               ▼
        12 BLDC motors</code></pre></div><div class="software-points"><article><span>01</span><div><h3>Automated homing</h3><p>Stall-based endstop detection and staged joint homing for all four legs.</p></div></article><article><span>02</span><div><h3>Analytical inverse kinematics</h3><p>Geometric leg modeling and analytical solutions for target foot positions; 3D integration is in development.</p></div></article><article><span>03</span><div><h3>Operator interface</h3><p>Xbox controller input and Python-based motor control on the Raspberry Pi.</p></div></article></div></div></section>
+    <section class="section container" id="architecture">
+      <p class="section-kicker">INTERACTIVE / CONTROL SYSTEM</p>
+      <div class="section-heading"><h2>FROM INPUT<br />TO ACTUATION.</h2><p>Explore how operator commands reach CARL's twelve motors across four CAN-FD buses. Select components to inspect their function and motor assignments.</p></div>
+      <div class="actions"><a class="button primary" href="architecture.html">Explore control architecture ↗</a></div>
+    </section>
     <section class="section container" id="simulation">
       <p class="section-kicker">04 / INTERACTIVE KINEMATICS</p>
       <div class="section-heading"><h2>EXPLORE THE<br />LEG MECHANISM.</h2><p>Try CARL's analytical inverse kinematics yourself. Drag the foot, adjust the link geometry, and visualize the reachable workspace.</p></div>
