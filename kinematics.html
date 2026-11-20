@@ -240,8 +240,8 @@ body{background:var(--paper);color:var(--ink)}
         <div class="btnrow">
           <button id="playBtn" aria-pressed="false">Play walk cycle</button>
           <button id="wsBtn" aria-pressed="true">Hide workspace</button>
-          <button id="brK" aria-pressed="false">Flip L₂ branch</button>
-          <button id="brP" aria-pressed="false">Flip L₁ branch</button>
+          <button id="legRight" aria-pressed="true">Right leg</button>
+          <button id="legLeft" aria-pressed="false">Left leg</button>
           <button id="resetBtn">Reset</button>
         </div>
       </div>
@@ -256,10 +256,10 @@ body{background:var(--paper);color:var(--ink)}
             <div class="ctl"><label for="sL1"><span><span class="swatch" style="background:var(--l1)"></span>L₁ driven</span><b id="vL1"></b></label><input id="sL1" type="range" min="30" max="180" step="1" value="85"></div>
             <div class="ctl"><label for="sL2"><span><span class="swatch" style="background:var(--l2)"></span>L₂ driven</span><b id="vL2"></b></label><input id="sL2" type="range" min="50" max="260" step="1" value="150"></div>
             <div class="ctl"><label for="sL3"><span><span class="swatch" style="background:var(--l3)"></span>L₃ passive</span><b id="vL3"></b></label><input id="sL3" type="range" min="50" max="260" step="1" value="150"></div>
-            <div class="ctl"><label for="sL41"><span><span class="swatch" style="background:var(--l4)"></span>L₄.₁ passive</span><b id="vL41"></b></label><input id="sL41" type="range" min="30" max="180" step="1" value="85"></div>
+            <div class="sub">L₄.₁ is constrained to equal L₁ (coaxial design).</div>
             <div class="ctl"><label for="sL42"><span><span class="swatch" style="background:var(--l4)"></span>L₄.₂ to foot</span><b id="vL42"></b></label><input id="sL42" type="range" min="30" max="260" step="1" value="140"></div>
             <div class="ctl"><label for="sK"><span>Kink κ</span><b id="vK"></b></label><input id="sK" type="range" min="-45" max="60" step="0.5" value="15"></div>
-            <div class="ctl"><label for="sD"><span>Shaft offset d</span><b id="vD"></b></label><input id="sD" type="range" min="0" max="120" step="1" value="0"></div>
+
             <div class="sub">Walk cycle</div>
             <div class="ctl"><label for="sStep"><span>Step length</span><b id="vStep"></b></label><input id="sStep" type="range" min="20" max="220" step="1" value="110"></div>
             <div class="ctl"><label for="sLift"><span>Foot lift</span><b id="vLift"></b></label><input id="sLift" type="range" min="5" max="90" step="1" value="40"></div>
@@ -269,59 +269,13 @@ body{background:var(--paper);color:var(--ink)}
         </div>
       </div>
 
-      <section class="plate" aria-label="Worked solution">
-        <div class="plate-label"><span>Worked solution</span><span id="reachFlag">in range</span></div>
-
-        <div class="step" data-hl="foot">
-          <span class="idx">Given</span>
-          <span class="name">Foot target, measured from the shaft axis</span>
-          <span class="formula">F = (x, y), y positive downward</span>
-          <span class="val" id="oF"></span>
+      <section class="plate" aria-label="Inverse kinematics results">
+        <div class="plate-label"><span>Foot position and joint angles</span><span id="reachFlag">in range</span></div>
+        <div class="plate-body">
+          <p>Target foot position (x, y): <strong id="oF"></strong></p>
+          <p>Joint angles: <strong id="oTh"></strong></p>
+          <p class="note">Joint limits: θ₁ −85° to 155°; θ₂ −102.732° to 17.268°. Angle between L₁ and L₂: greater than 47.1° and at most 152.2°. Invalid targets are rejected.</p>
         </div>
-
-        <div class="step" data-hl="k">
-          <span class="idx">Step 1</span>
-          <span class="name">Kink joint K — circle ∩ circle</span>
-          <span class="formula">|K − B| = L₂ and |K − F| = L₄.₂<br>θ₂ = atan2(K<sub>x</sub>−B<sub>x</sub>, K<sub>y</sub>)</span>
-          <span class="val" id="oK"></span>
-        </div>
-
-        <div class="step" data-hl="psi">
-          <span class="idx">Step 2</span>
-          <span class="name">Orientation of the rigid L₄ body</span>
-          <span class="formula">ψ = ∠(K→F) rotated back by 180°−κ</span>
-          <span class="val" id="oPsi"></span>
-        </div>
-
-        <div class="step" data-hl="e">
-          <span class="idx">Step 3</span>
-          <span class="name">Far pin E, where L₄.₁ meets L₃</span>
-          <span class="formula">E = K + L₄.₁ · û(ψ)</span>
-          <span class="val" id="oE"></span>
-        </div>
-
-        <div class="step" data-hl="reach">
-          <span class="idx">Step 4</span>
-          <span class="name">Reach check on the L₁–L₃ pair</span>
-          <span class="formula">r = |E − A|, need |L₁−L₃| ≤ r ≤ L₁+L₃</span>
-          <span class="val" id="oR"></span>
-        </div>
-
-        <div class="step" data-hl="p1">
-          <span class="idx">Step 5</span>
-          <span class="name">Elbow P₁ — circle ∩ circle</span>
-          <span class="formula">|P₁ − A| = L₁ and |P₁ − E| = L₃</span>
-          <span class="val" id="oP1"></span>
-        </div>
-
-        <div class="step" data-hl="out">
-          <span class="idx">Result</span>
-          <span class="name">Shaft angles you command</span>
-          <span class="formula">θ₁ = atan2(P₁<sub>x</sub>−A<sub>x</sub>, P₁<sub>y</sub>)<br>θ₂ from step 1 — both zero pointing straight down, positive toward +x</span>
-          <span class="val" id="oTh"></span>
-        </div>
-
-        <p class="note">No iteration anywhere: the foot fixes K by two circles, K and κ fix the whole L₄ body, and E then fixes P₁ by two more circles. Each intersection has two roots — the flip buttons pick the other assembly mode. With <code>L₁ = L₄.₁</code> and <code>L₂ = L₃</code> the loop is a parallelogram, so L₄ stays parallel to L₁ and the foot reduces to <code>F = L₂·û(θ₂) + L₄.₂·û(θ₁+180°−κ)</code>.</p>
       </section>
     </div>
   </div>
@@ -344,7 +298,7 @@ body{background:var(--paper);color:var(--ink)}
 
   const st = {
     L1:85, L2:150, L3:150, L41:85, L42:140, kink:15*RAD, d:0,
-    x:0, y:200, sK:+1, sP:+1, walking:false, phase:0, showWs:true
+    x:0, y:200, leg:"right", sK:+1, sP:+1, walking:false, phase:0, showWs:true
   };
   let gait = {step:110, lift:40, depth:200, off:0};
   let pose = null;          // last successfully solved pose
@@ -368,7 +322,7 @@ body{background:var(--paper);color:var(--ink)}
   function solveIK(fx, fy){
     const A = {x:-st.d/2, y:0}, B = {x:+st.d/2, y:0}, F = {x:fx, y:fy};
 
-    const K = ci(B, st.L2, F, st.L42, st.sK);
+    const K = ci(B, st.L2, F, st.L42, st.leg==="right" ? +1 : -1);
     if(!K) return null;
 
     const vx=F.x-K.x, vy=F.y-K.y, n=Math.hypot(vx,vy);
@@ -377,7 +331,13 @@ body{background:var(--paper);color:var(--ink)}
     const E = {x:K.x + st.L41*ex, y:K.y + st.L41*ey};
 
     const r = Math.hypot(E.x-A.x, E.y-A.y);
-    const P1 = ci(A, st.L1, E, st.L3, st.sP);
+    const candidates = [+1,-1].map(sign=>ci(A,st.L1,E,st.L3,sign)).filter(Boolean);
+    const P1 = candidates.find(p=>{
+      const t1=Math.atan2(p.x-A.x,p.y-A.y)*DEG;
+      const t2=Math.atan2(K.x-B.x,K.y-B.y)*DEG;
+      const between=Math.abs(((t1-t2+540)%360)-180);
+      return t1>=-85 && t1<=155 && t2>=-102.732 && t2<=17.268 && between>47.1 && between<=152.2;
+    });
     if(!P1) return null;
 
     return {
@@ -432,7 +392,7 @@ body{background:var(--paper);color:var(--ink)}
     solvable = !!sol;
     if(sol) pose = sol;
     stage.classList.toggle("stale", !solvable);
-    if(!pose){ $("statusText").textContent="no assembly"; return; }
+    if(!pose){ $("statusText").textContent="no valid pose"; $("oF").textContent=pt({x:st.x,y:st.y}); $("oTh").textContent="—"; $("reachFlag").textContent="out of limits"; return; }
 
     const {A,B,K,E,P1,r,psi,th1,th2} = pose;
     const F = {x:st.x, y:st.y};
@@ -482,14 +442,9 @@ body{background:var(--paper);color:var(--ink)}
     $("footlab").textContent = pt(F);
 
     $("oF").textContent   = pt(F);
-    $("oK").textContent   = pt(K)+"  θ₂ "+dg(th2);
-    $("oPsi").textContent = dg(psi);
-    $("oE").textContent   = pt(E);
-    $("oR").textContent   = mm(r)+"  ∈ ["+mm(Math.abs(st.L1-st.L3))+", "+mm(st.L1+st.L3)+"]";
-    $("oP1").textContent  = pt(P1);
-    $("oTh").textContent  = "θ₁ "+dg(th1)+"  θ₂ "+dg(th2);
+    $("oTh").textContent  = solvable ? "θ₁ "+dg(th1)+"  θ₂ "+dg(th2) : "—";
 
-    $("reachFlag").textContent = solvable ? "in range" : "out of reach";
+    $("reachFlag").textContent = solvable ? "in range" : "out of limits";
     $("reachFlag").classList.toggle("bad", !solvable);
     $("statusText").textContent = st.walking
       ? "Walking · phase "+(st.phase*100).toFixed(0)+"%"
@@ -543,7 +498,7 @@ body{background:var(--paper);color:var(--ink)}
   function moveDrag(e){
     if(!dragging) return;
     const [x,y]=toLocal(e);
-    st.x=x; st.y=y; render();
+    if(solveIK(x,y)){ st.x=x; st.y=y; render(); }
   }
   $("handle").addEventListener("pointerdown", startDrag);
   stage.addEventListener("pointerdown", e => { if(e.target.closest("#handle")) return; startDrag(e); });
@@ -555,8 +510,8 @@ body{background:var(--paper);color:var(--ink)}
     const map = {ArrowLeft:[-k,0],ArrowRight:[k,0],ArrowUp:[0,-k],ArrowDown:[0,k]};
     if(!map[e.key]) return;
     if(st.walking) stopWalk();
-    st.x += map[e.key][0]; st.y += map[e.key][1];
-    render(); e.preventDefault();
+    const x=st.x+map[e.key][0],y=st.y+map[e.key][1];
+    if(solveIK(x,y)){st.x=x;st.y=y;render();} e.preventDefault();
   });
 
   // ---- hover isolation --------------------------------------------------
@@ -577,13 +532,11 @@ body{background:var(--paper);color:var(--ink)}
   }
   const asMM = v => v+" mm";
   const asDeg = v => v+"°";
-  bind("sL1","vL1",asMM,v=>st.L1=v,true);
+  bind("sL1","vL1",asMM,v=>{st.L1=v;st.L41=v;},true);
   bind("sL2","vL2",asMM,v=>st.L2=v,true);
   bind("sL3","vL3",asMM,v=>st.L3=v,true);
-  bind("sL41","vL41",asMM,v=>st.L41=v,true);
   bind("sL42","vL42",asMM,v=>st.L42=v,true);
   bind("sK","vK",asDeg,v=>st.kink=v*RAD,true);
-  bind("sD","vD",asMM,v=>st.d=v,true);
   bind("sStep","vStep",asMM,v=>gait.step=v);
   bind("sLift","vLift",asMM,v=>gait.lift=v);
   bind("sDepth","vDepth",asMM,v=>gait.depth=v);
@@ -610,19 +563,19 @@ body{background:var(--paper);color:var(--ink)}
     $("wsBtn").setAttribute("aria-pressed",String(st.showWs));
     $("wsBtn").textContent = st.showWs?"Hide workspace":"Show workspace";
   });
-  $("brK").addEventListener("click",()=>{
-    st.sK*=-1; $("brK").setAttribute("aria-pressed",String(st.sK<0));
+  function selectLeg(side){
+    st.leg=side;
+    $("legRight").setAttribute("aria-pressed",String(side==="right"));
+    $("legLeft").setAttribute("aria-pressed",String(side==="left"));
     buildWorkspace(); render();
-  });
-  $("brP").addEventListener("click",()=>{
-    st.sP*=-1; $("brP").setAttribute("aria-pressed",String(st.sP<0));
-    buildWorkspace(); render();
-  });
+  }
+  $("legRight").addEventListener("click",()=>selectLeg("right"));
+  $("legLeft").addEventListener("click",()=>selectLeg("left"));
   $("resetBtn").addEventListener("click",()=>{
     stopWalk();
-    st.sK=1; st.sP=1;
-    $("brK").setAttribute("aria-pressed","false"); $("brP").setAttribute("aria-pressed","false");
-    const d={sL1:85,sL2:150,sL3:150,sL41:85,sL42:140,sK:15,sD:0,
+    st.leg="right";
+    $("legRight").setAttribute("aria-pressed","true"); $("legLeft").setAttribute("aria-pressed","false");
+    const d={sL1:85,sL2:150,sL3:150,sL42:140,sK:15,
              sStep:110,sLift:40,sDepth:200,sOff:0};
     for(const k in d){ $(k).value=d[k]; }
     for(const k in d){ $(k).dispatchEvent(new Event("input")); }
