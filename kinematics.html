@@ -310,7 +310,7 @@ body{background:var(--paper);color:var(--ink)}
   let solvable = true;
 
   const px = p => [CX + S*p.x, CY + S*p.y];
-  function scaleFor(){ return Math.min(1.45, 300/(st.L2+st.L42)); }
+  function scaleFor(){ return 0.8; } // Fixed pixels/mm: changing a link never rescales the other links.
 
   // ---- circle ∩ circle --------------------------------------------------
   function ci(P, rP, Q, rQ, sign){
@@ -438,9 +438,24 @@ body{background:var(--paper);color:var(--ink)}
     S = scaleFor();
     const sol = solveIK(st.x, st.y);
     solvable = !!sol;
-    if(sol) pose = sol;
+    pose = sol; // Never display an old linkage with newly changed slider dimensions.
     stage.classList.toggle("stale", !solvable);
-    if(!pose){ $("statusText").textContent="no valid pose"; $("oF").textContent=pt({x:st.x,y:st.y}); $("oTh").textContent="—"; $("reachFlag").textContent="out of limits"; return; }
+    if(!pose){
+      // Hide old geometry rather than showing stale link lengths after slider changes.
+      const ids=["hipbar","lnL1","lnL3","lnL41","lnL42","lnL2","reachE","vertA","vertB","extK","arcT1","arcT2","arcK"];
+      ids.forEach(id=>$(id).setAttribute("visibility","hidden"));
+      ["pivA","pivB","jP1","jE","jK"].forEach(id=>$(id).setAttribute("visibility","hidden"));
+      ["labL1","labL3","labL41","labL42","labL2","labK","labT1","labT2","labA","labB","labE","labKp","labP1"].forEach(id=>$(id).setAttribute("visibility","hidden"));
+      $("statusText").textContent="target unreachable — adjust foot position or geometry";
+      $("oF").textContent=pt({x:st.x,y:st.y});
+      $("oTh").textContent="—";
+      $("reachFlag").textContent="out of limits";
+      $("reachFlag").classList.add("bad");
+      const f=px({x:st.x,y:st.y});
+      $("handle").setAttribute("transform",`translate(${f[0].toFixed(2)},${f[1].toFixed(2)})`);
+      return;
+    }
+    ["hipbar","lnL1","lnL3","lnL41","lnL42","lnL2","reachE","vertA","vertB","extK","arcT1","arcT2","arcK","pivA","pivB","jP1","jE","jK","labL1","labL3","labL41","labL42","labL2","labK","labT1","labT2","labA","labB","labE","labKp","labP1"].forEach(id=>$(id).removeAttribute("visibility"));
 
     const {A,B,K,E,P1,r,psi,th1,th2} = pose;
     const F = {x:st.x, y:st.y};
