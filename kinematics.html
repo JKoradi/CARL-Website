@@ -279,7 +279,7 @@ body{background:var(--paper);color:var(--ink)}
         <div class="plate-body">
           <p>Target foot position (x, y): <strong id="oF"></strong></p>
           <p>Joint angles: <strong id="oTh"></strong></p>
-          <p class="note">Angles measured clockwise from vertically upwards. Joint limits: θ₁ −95° to 25°; θ₂ 162.732° to 282.732° (wraps through ±180°). Relative opening angle between L₁ and L₂: greater than 47.1° and at most 152.2°. Invalid targets are rejected.</p>
+          <p class="note">Angles measured clockwise from vertically upwards. Left-leg joint angles are mirrored; limits below refer to the right-leg convention. Joint limits: θ₁ −95° to 25°; θ₂ 162.732° to 282.732° (wraps through ±180°). Relative opening angle between L₁ and L₂: greater than 47.1° and at most 152.2°. Invalid targets are rejected.</p>
         </div>
       </section>
     </div>
@@ -348,10 +348,10 @@ body{background:var(--paper);color:var(--ink)}
   }
 
   // ---- inverse kinematics ----------------------------------------------
-  function solveIK(fx, fy){
+  function solveRightIK(fx, fy){
     const A = {x:-st.d/2, y:0}, B = {x:+st.d/2, y:0}, F = {x:fx, y:fy};
 
-    const K = ci(B, st.L2, F, st.L42, st.leg==="right" ? +1 : -1);
+    const K = ci(B, st.L2, F, st.L42, +1);
     if(!K) return null;
 
     const vx=F.x-K.x, vy=F.y-K.y, n=Math.hypot(vx,vy);
@@ -375,6 +375,24 @@ body{background:var(--paper);color:var(--ink)}
       psi: Math.atan2(ex, ey),
       th1: jointAngle(A,P1),
       th2: jointAngle(B,K)
+    };
+  }
+
+  // A left leg is the exact geometric reflection of the right leg.
+  // Solve in right-leg coordinates first, then mirror every joint and the foot.
+  // This preserves the kink, the selected assembly branch, and collision checks.
+  function solveIK(fx, fy){
+    const right=solveRightIK(st.leg==="left" ? -fx : fx,fy);
+    if(!right) return null;
+    if(st.leg==="right") return right;
+    const mirror=p=>({x:-p.x,y:p.y});
+    return {
+      ...right,
+      A:mirror(right.A), B:mirror(right.B), F:mirror(right.F),
+      K:mirror(right.K), E:mirror(right.E), P1:mirror(right.P1),
+      psi:-right.psi,
+      th1:jointAngle(mirror(right.A),mirror(right.P1)),
+      th2:jointAngle(mirror(right.B),mirror(right.K))
     };
   }
 
