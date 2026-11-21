@@ -47,6 +47,24 @@ root.appendChild(content);
   const theta2Allowed = deg => { const wrapped=wrap360(deg); return wrapped>=162.732-1e-8 && wrapped<=282.732+1e-8; };
   const openingAngle = (a,b) => Math.acos(Math.max(-1,Math.min(1,Math.cos(a-b))))*DEG;
 
+  // Reject crossed-link assemblies: the physical L2 (B-K) and L3 (P1-E)
+  // cannot pass through one another. This checks the finite segments, not
+  // their infinitely extended lines.
+  function segmentsIntersect(a,b,c,d){
+    const cross=(p,q,r)=>(q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x);
+    const eps=1e-8;
+    const abC=cross(a,b,c), abD=cross(a,b,d);
+    const cdA=cross(c,d,a), cdB=cross(c,d,b);
+    if(((abC>eps&&abD< -eps)||(abC< -eps&&abD>eps)) &&
+       ((cdA>eps&&cdB< -eps)||(cdA< -eps&&cdB>eps))) return true;
+    const onSegment=(p,q,r)=>Math.min(p.x,r.x)-eps<=q.x&&q.x<=Math.max(p.x,r.x)+eps &&
+      Math.min(p.y,r.y)-eps<=q.y&&q.y<=Math.max(p.y,r.y)+eps;
+    return (Math.abs(abC)<=eps&&onSegment(a,c,b)) ||
+      (Math.abs(abD)<=eps&&onSegment(a,d,b)) ||
+      (Math.abs(cdA)<=eps&&onSegment(c,a,d)) ||
+      (Math.abs(cdB)<=eps&&onSegment(c,b,d));
+  }
+
   // ---- inverse kinematics ----------------------------------------------
   function solveIK(fx, fy){
     const A = {x:-st.d/2, y:0}, B = {x:+st.d/2, y:0}, F = {x:fx, y:fy};
@@ -62,6 +80,7 @@ root.appendChild(content);
     const r = Math.hypot(E.x-A.x, E.y-A.y);
     const candidates = [+1,-1].map(sign=>ci(A,st.L1,E,st.L3,sign)).filter(Boolean);
     const P1 = candidates.find(p=>{
+      if(segmentsIntersect(B,K,p,E)) return false;
       const t1=jointAngle(A,p), t2=jointAngle(B,K);
       const relative=openingAngle(t1,t2);
       return t1*DEG>=-95 && t1*DEG<=25 &&
