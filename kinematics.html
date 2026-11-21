@@ -244,6 +244,7 @@ body{background:var(--paper);color:var(--ink)}
         </svg>
         <div class="btnrow">
           <button id="playBtn" aria-pressed="false">Play walk cycle</button>
+          <button id="reverseBtn" aria-pressed="false" title="Reverse foot travel direction">Reverse gait</button>
           <button id="wsBtn" aria-pressed="true">Hide workspace</button>
           <button id="legRight" aria-pressed="true">Right leg</button>
           <button id="legLeft" aria-pressed="false">Left leg</button>
@@ -303,7 +304,7 @@ body{background:var(--paper);color:var(--ink)}
 
   const st = {
     L1:85, L2:150, L3:150, L41:85, L42:140, kink:15*RAD, d:0,
-    x:0, y:200, leg:"right", sK:+1, sP:+1, walking:false, phase:0, showWs:true
+    x:0, y:200, leg:"right", sK:+1, sP:+1, walking:false, phase:0, reverse:false, showWs:true
   };
   let gait = {step:110, lift:40, depth:200, off:0};
   let pose = null;          // last successfully solved pose
@@ -519,6 +520,7 @@ body{background:var(--paper);color:var(--ink)}
 
   // ---- walk trajectory --------------------------------------------------
   function walkPoint(t){
+    if(st.reverse) t=(1-t+1)%1;
     if(t < 0.6){ const u=t/0.6; return [gait.off + gait.step/2 - u*gait.step, gait.depth]; }
     const u=(t-0.6)/0.4;
     return [gait.off - gait.step/2 + u*gait.step, gait.depth - gait.lift*Math.sin(Math.PI*u)];
@@ -639,6 +641,13 @@ body{background:var(--paper);color:var(--ink)}
     $("playBtn").textContent="Pause walk cycle";
     buildTrace(); $("trace").style.display="";
     requestAnimationFrame(tick);
+  });
+  $("reverseBtn").addEventListener("click",()=>{
+    st.reverse=!st.reverse;
+    st.phase=(1-st.phase+1)%1; // Keep foot position continuous on direction changes.
+    $("reverseBtn").setAttribute("aria-pressed",String(st.reverse));
+    $("reverseBtn").textContent=st.reverse?"Forward gait":"Reverse gait";
+    buildTrace(); render();
   });
   $("wsBtn").addEventListener("click",()=>{
     st.showWs=!st.showWs;
