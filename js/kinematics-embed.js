@@ -237,7 +237,7 @@ root.appendChild(content);
 
   // ---- walk trajectory --------------------------------------------------
   function walkPoint(t){
-    if(st.reverse) t=(1-t+1)%1;
+    if(st.reverse !== (st.leg==="right")) t=(1-t+1)%1; // Right leg uses the opposite horizontal convention.
     if(t < 0.6){ const u=t/0.6; return [gait.off + gait.step/2 - u*gait.step, gait.depth]; }
     const u=(t-0.6)/0.4;
     return [gait.off - gait.step/2 + u*gait.step, gait.depth - gait.lift*Math.sin(Math.PI*u)];
