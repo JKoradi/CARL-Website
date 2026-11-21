@@ -60,3 +60,20 @@
 #architecture .architecture-footnote{font-size:12px;color:var(--muted);margin-top:22px}
 @media(max-width:900px){#architecture .architecture-diagram{grid-template-columns:1fr}#architecture .architecture-detail{position:static}#architecture .architecture-split{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){#architecture .architecture-flow{padding:16px 12px}#architecture .architecture-node{padding:12px}#architecture .architecture-bus{padding:12px 6px}#architecture .architecture-bus strong{font-size:12px}}
+
+/* Engineering skills cards */
+.skills-section{background:#0d1218;border-bottom:1px solid var(--line)}
+.skills-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.skill-card{display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:32px;border:1px solid #34414d;background:#171d25;border-radius:9px;transition:border-color .2s,transform .2s,box-shadow .2s}
+.skill-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 12px 32px #0003}
+.skill-icon{display:grid;place-items:center;width:40px;height:40px;background:#302521;border:1px solid #694434;color:var(--accent);border-radius:8px;font-size:19px;font-weight:800;line-height:1}
+.skill-card h3{font-size:23px;letter-spacing:-.035em;margin:19px 0 8px}
+.skill-card p{color:var(--muted);margin:0 0 22px;line-height:1.6}
+.skill-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:25px}
+.skill-tags span{background:#252e39;border:1px solid #35414e;color:#c5cfd7;padding:6px 9px;border-radius:4px;font-size:11px}
+.skill-link{display:inline-flex;align-items:center;gap:9px;margin-top:auto;color:var(--accent);font-size:13px;font-weight:800;text-decoration:none}
+.skill-link span{transition:transform .2s}
+.skill-link:hover span,.skill-link:focus-visible span{transform:translate(3px,-3px)}
+.skill-link:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+@media(max-width:650px){.skills-grid{grid-template-columns:1fr}.skill-card{padding:25px}}
+@media(prefers-reduced-motion:reduce){.skill-card,.skill-link span{transition:none}.skill-card:hover{transform:none}}
