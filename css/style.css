@@ -101,3 +101,19 @@
 /* Render the actual mechanical CAD image rather than the old placeholder. */
 .feature-art.mechanical{background:#111820;overflow:hidden}
 .feature-art.mechanical img{display:block;width:100%;height:100%;object-fit:contain}
+
+/* Professional contact section */
+.contact-section{background:#121820;border-top:1px solid var(--line)}
+.contact-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:start}
+.contact-layout h2{font-size:clamp(44px,6vw,90px);line-height:1.02;letter-spacing:-.055em;margin:26px 0 0}
+.contact-layout h2 em{font-style:normal;color:var(--accent)}
+.contact-content>p{color:var(--muted);font-size:17px;line-height:1.75;margin:0 0 28px;max-width:560px}
+.contact-links{display:grid;gap:12px}
+.contact-link{display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid #34414d;border-radius:8px;padding:18px 22px;background:#1a212a;text-decoration:none;color:#f1f3f5;transition:border-color .2s,transform .2s}
+.contact-link:hover,.contact-link:focus-visible{border-color:var(--accent);transform:translateY(-2px)}
+.contact-link>span:first-child{display:grid;gap:6px;min-width:0}
+.contact-link small{color:var(--accent);font-size:10px;letter-spacing:.14em;font-weight:800}
+.contact-link strong{font-size:17px;overflow-wrap:anywhere}
+.contact-link>span:last-child{color:var(--accent);font-size:21px}
+@media(max-width:760px){.contact-layout{grid-template-columns:1fr;gap:30px}.contact-layout h2{margin-top:18px}}
+@media(prefers-reduced-motion:reduce){.contact-link{transition:none}.contact-link:hover{transform:none}}
