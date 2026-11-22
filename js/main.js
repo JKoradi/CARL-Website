@@ -7,9 +7,27 @@ menuButton?.addEventListener('click', () => {
 document.querySelectorAll('.nav-links a').forEach(link => {
   link.addEventListener('click', () => {
     menuLinks.classList.remove('open');
+    menuLinks.querySelectorAll('.nav-dropdown[open]').forEach(d => d.open = false);
     menuButton?.setAttribute('aria-expanded', 'false');
   });
 });
+
+// Close grouped navigation menus when another opens, when clicking away, or on Escape.
+const navDropdowns = [...document.querySelectorAll('.nav-dropdown')];
+navDropdowns.forEach(dropdown => dropdown.addEventListener('toggle', () => {
+  if (dropdown.open) navDropdowns.forEach(other => { if (other !== dropdown) other.open = false; });
+}));
+document.addEventListener('click', event => {
+  if (!event.target.closest('.nav-dropdown')) navDropdowns.forEach(d => d.open = false);
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    navDropdowns.forEach(d => d.open = false);
+    menuLinks?.classList.remove('open');
+    menuButton?.setAttribute('aria-expanded', 'false');
+  }
+});
+
 document.getElementById('year').textContent = String(new Date().getFullYear());
 
 /* Embedded control architecture */
