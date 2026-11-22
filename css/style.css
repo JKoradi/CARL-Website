@@ -97,3 +97,7 @@
 
 .video-unavailable{height:100%;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:12px;letter-spacing:.08em;background:#111820}
 .video-unavailable[hidden],.video-frame video[hidden]{display:none}
+
+/* Render the actual mechanical CAD image rather than the old placeholder. */
+.feature-art.mechanical{background:#111820;overflow:hidden}
+.feature-art.mechanical img{display:block;width:100%;height:100%;object-fit:contain}
