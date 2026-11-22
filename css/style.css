@@ -141,3 +141,16 @@
 .gallery-thumb[aria-current="true"]{border-color:var(--accent)}
 .gallery-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 @media(max-width:600px){.gallery-stage{height:300px}.gallery-toolbar{padding:16px}.gallery-arrow{width:36px;height:46px}.gallery-prev{left:8px}.gallery-next{right:8px}}
+
+/* Grouped navigation dropdowns */
+.nav-dropdown{position:relative}
+.nav-dropdown>summary{display:flex;align-items:center;gap:7px;cursor:pointer;list-style:none;white-space:nowrap}
+.nav-dropdown>summary::-webkit-details-marker{display:none}
+.nav-dropdown>summary span{font-size:15px;line-height:1;transition:transform .15s}
+.nav-dropdown[open]>summary span{transform:rotate(180deg)}
+.nav-dropdown>summary:hover,.nav-dropdown[open]>summary{color:var(--accent)}
+.nav-dropdown>summary:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+.nav-submenu{position:absolute;top:calc(100% + 15px);left:-16px;min-width:158px;padding:8px;background:#161d24;border:1px solid #34414d;border-radius:8px;box-shadow:0 12px 32px #0008;display:grid;gap:2px;z-index:25}
+.nav-submenu a{display:block;padding:10px 12px;border-radius:5px;white-space:nowrap}
+.nav-submenu a:hover,.nav-submenu a:focus-visible{background:#26313b;color:var(--accent)}
+@media(max-width:650px){.nav-dropdown{width:100%}.nav-dropdown>summary{justify-content:space-between;padding:4px 0}.nav-submenu{position:static;box-shadow:none;min-width:0;margin-top:8px;margin-left:8px;border-left:2px solid var(--accent);border-top:0;border-bottom:0;border-right:0;border-radius:0;background:transparent;padding:3px 0 3px 10px}}
