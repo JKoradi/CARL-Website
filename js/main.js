@@ -29,3 +29,41 @@ const root=document.getElementById('architecture');const buttons=[...root.queryS
 buttons.forEach(b=>b.addEventListener('click',()=>select(b.dataset.id)));select('pi');
 
 })();
+
+/* Photo gallery: add images by editing the list below and uploading to assets/gallery/. */
+(()=>{
+  const photos = [
+    // { src: "assets/gallery/robot-assembly.jpg", caption: "CARL mechanical assembly", alt: "CARL quadruped mechanical assembly" },
+    // { src: "assets/gallery/capstan-drive.jpg", caption: "Capstan drive detail", alt: "Close-up of a capstan transmission" },
+  ];
+  const root=document.querySelector("#gallery");if(!root)return;
+  const img=root.querySelector("#gallery-image"),empty=root.querySelector("#gallery-empty");
+  const caption=root.querySelector("#gallery-caption"),counter=root.querySelector("#gallery-counter");
+  const thumbs=root.querySelector("#gallery-thumbnails");
+  const prev=root.querySelector(".gallery-prev"),next=root.querySelector(".gallery-next");
+  let index=0;
+  function show(i){
+    if(!photos.length)return;
+    index=(i+photos.length)%photos.length;
+    const p=photos[index];
+    img.src=p.src;img.alt=p.alt||p.caption||"CARL project photograph";
+    caption.textContent=p.caption||"CARL project photo";
+    counter.textContent=(index+1)+" / "+photos.length;
+    [...thumbs.children].forEach((button,n)=>button.setAttribute("aria-current",String(n===index)));
+  }
+  if(photos.length){
+    img.hidden=false;empty.hidden=true;
+    prev.disabled=next.disabled=photos.length<2;
+    photos.forEach((p,i)=>{
+      const button=document.createElement("button");button.type="button";button.className="gallery-thumb";
+      button.setAttribute("aria-label","Show photo "+(i+1)+(p.caption?": "+p.caption:""));
+      const thumbnail=document.createElement("img");thumbnail.src=p.src;thumbnail.alt="";thumbnail.loading="lazy";
+      button.appendChild(thumbnail);button.addEventListener("click",()=>show(i));thumbs.appendChild(button);
+    });
+    img.addEventListener("error",()=>{img.hidden=true;empty.hidden=false;empty.querySelector("strong").textContent="PHOTO NOT FOUND";empty.querySelector("p").textContent="Check the filename and path in js/main.js.";});
+    img.addEventListener("load",()=>{img.hidden=false;empty.hidden=true;});
+    prev.addEventListener("click",()=>show(index-1));next.addEventListener("click",()=>show(index+1));
+    root.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){e.preventDefault();show(index-1)}if(e.key==="ArrowRight"){e.preventDefault();show(index+1)}});
+    show(0);
+  }
+})();
