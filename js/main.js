@@ -51,15 +51,14 @@ buttons.forEach(b=>b.addEventListener('click',()=>select(b.dataset.id)));select(
 /* Photo gallery: add images by editing the list below and uploading to assets/gallery/. */
 (()=>{
   const photos = [
-    { src: "assets/gallery/carl.jpg", caption: "CARL quadruped", alt: "Photograph of the CARL robot" },
     { src: "assets/gallery/main_body.jpg", caption: "Main body", alt: "CARL robot main body" },
     { src: "assets/gallery/front_leg1.jpg", caption: "Front leg — view 1", alt: "CARL front leg, first view" },
     { src: "assets/gallery/front_leg2.jpg", caption: "Front leg — view 2", alt: "CARL front leg, second view" },
     { src: "assets/gallery/Capstan_Prototype.jpg", caption: "Capstan prototype", alt: "Prototype of CARL's capstan transmission" },
-    { src: "assets/gallery/picture1.jpg", caption: "Development photo 1", alt: "CARL project development photo 1" },
-    { src: "assets/gallery/picture2.jpg", caption: "Development photo 2", alt: "CARL project development photo 2" },
-    { src: "assets/gallery/picture3.jpg", caption: "Development photo 3", alt: "CARL project development photo 3" },
-    { src: "assets/gallery/picture4.jpg", caption: "Development photo 4", alt: "CARL project development photo 4" },
+    { src: "assets/gallery/picture1.jpg", caption: "MK1 Final Assembly 1", alt: "CARL project Final Assembly 1" },
+    { src: "assets/gallery/picture2.jpg", caption: "MK1 Final Assembly 2", alt: "CARL project Final Assembly 2" },
+    { src: "assets/gallery/picture3.jpg", caption: "MK1 Final Assembly 3", alt: "CARL project Final Assembly 3" },
+    { src: "assets/gallery/picture4.jpg", caption: "MK1 Final Assembly 4", alt: "CARL project Final Assembly 4" },
   ];  const root=document.querySelector("#gallery");if(!root)return;
   const img=root.querySelector("#gallery-image"),empty=root.querySelector("#gallery-empty");
   const caption=root.querySelector("#gallery-caption"),counter=root.querySelector("#gallery-counter");
