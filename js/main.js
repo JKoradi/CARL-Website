@@ -51,15 +51,31 @@ buttons.forEach(b=>b.addEventListener('click',()=>select(b.dataset.id)));select(
 /* Photo gallery: add images by editing the list below and uploading to assets/gallery/. */
 (()=>{
   const photos = [
-    { src: "assets/gallery/main_body.jpg", caption: "Main body", alt: "CARL robot main body" },
-    { src: "assets/gallery/front_leg1.jpg", caption: "Front leg — view 1", alt: "CARL front leg, first view" },
-    { src: "assets/gallery/front_leg2.jpg", caption: "Front leg — view 2", alt: "CARL front leg, second view" },
-    { src: "assets/gallery/Capstan_Prototype.jpg", caption: "Capstan prototype", alt: "Prototype of CARL's capstan transmission" },
-    { src: "assets/gallery/picture1.jpg", caption: "MK1 Final Assembly 1", alt: "CARL project Final Assembly 1" },
-    { src: "assets/gallery/picture2.jpg", caption: "MK1 Final Assembly 2", alt: "CARL project Final Assembly 2" },
-    { src: "assets/gallery/picture3.jpg", caption: "MK1 Final Assembly 3", alt: "CARL project Final Assembly 3" },
-    { src: "assets/gallery/picture4.jpg", caption: "MK1 Final Assembly 4", alt: "CARL project Final Assembly 4" },
-  ];  const root=document.querySelector("#gallery");if(!root)return;
+    { src: "assets/gallery/first_cad_model1.jpg", caption: "Early CAD model — view 1", alt: "Early CAD model — view 1 from the CARL robot project" },
+    { src: "assets/gallery/first_cad_model2.jpg", caption: "Early CAD model — view 2", alt: "Early CAD model — view 2 from the CARL robot project" },
+    { src: "assets/gallery/cad_assembly.jpg", caption: "CAD assembly", alt: "CAD assembly from the CARL robot project" },
+    { src: "assets/gallery/Capstan_Prototype.jpg", caption: "Capstan prototype", alt: "Capstan prototype from the CARL robot project" },
+    { src: "assets/gallery/cnc_parts1.jpg", caption: "CNC-machined parts", alt: "CNC-machined parts from the CARL robot project" },
+    { src: "assets/gallery/foot_casting1.jpg", caption: "Foot casting — step 1", alt: "Foot casting — step 1 from the CARL robot project" },
+    { src: "assets/gallery/foot_casting2.jpg", caption: "Foot casting — step 2", alt: "Foot casting — step 2 from the CARL robot project" },
+    { src: "assets/gallery/foot_casting3.jpg", caption: "Foot casting — step 3", alt: "Foot casting — step 3 from the CARL robot project" },
+    { src: "assets/gallery/first_leg_assembly.jpg", caption: "First leg assembly", alt: "First leg assembly from the CARL robot project" },
+    { src: "assets/gallery/leg_test_stand.jpg", caption: "Leg test stand", alt: "Leg test stand from the CARL robot project" },
+    { src: "assets/gallery/front_leg1.jpg", caption: "Front leg — view 1", alt: "Front leg — view 1 from the CARL robot project" },
+    { src: "assets/gallery/front_leg2.jpg", caption: "Front leg — view 2", alt: "Front leg — view 2 from the CARL robot project" },
+    { src: "assets/gallery/front_assembly.jpg", caption: "Front assembly", alt: "Front assembly from the CARL robot project" },
+    { src: "assets/gallery/main_frame1.jpg", caption: "Main frame — view 1", alt: "Main frame — view 1 from the CARL robot project" },
+    { src: "assets/gallery/main_frame2.jpg", caption: "Main frame — view 2", alt: "Main frame — view 2 from the CARL robot project" },
+    { src: "assets/gallery/main_body.jpg", caption: "Main body", alt: "Main body from the CARL robot project" },
+    { src: "assets/gallery/assembly_process1.jpg", caption: "Assembly process — view 1", alt: "Assembly process — view 1 from the CARL robot project" },
+    { src: "assets/gallery/assembly_process2.jpg", caption: "Assembly process — view 2", alt: "Assembly process — view 2 from the CARL robot project" },
+    { src: "assets/gallery/main_power_wiring.jpg", caption: "Main power wiring", alt: "Main power wiring from the CARL robot project" },
+    { src: "assets/gallery/battery_pack.jpg", caption: "Battery pack", alt: "Battery pack from the CARL robot project" },
+    { src: "assets/gallery/picture1.jpg", caption: "Development photo 1", alt: "Development photo 1 from the CARL robot project" },
+    { src: "assets/gallery/picture2.jpg", caption: "Development photo 2", alt: "Development photo 2 from the CARL robot project" },
+    { src: "assets/gallery/picture3.jpg", caption: "Development photo 3", alt: "Development photo 3 from the CARL robot project" },
+    { src: "assets/gallery/picture4.jpg", caption: "Development photo 4", alt: "Development photo 4 from the CARL robot project" },
+  ]; const root=document.querySelector("#gallery");if(!root)return;
   const img=root.querySelector("#gallery-image"),empty=root.querySelector("#gallery-empty");
   const caption=root.querySelector("#gallery-caption"),counter=root.querySelector("#gallery-counter");
   const thumbs=root.querySelector("#gallery-thumbnails");
