@@ -102,7 +102,7 @@
       <div class="actions"><a class="button primary" href="kinematics.html">Open full-screen simulation ↗</a></div><section id="analytical-ik" style="margin-top:36px;border:1px solid #303944;padding:clamp(16px,3vw,32px);background:#171d25">
 <h3>Analytical inverse kinematics</h3><p>For coaxial motor shafts and equal opposite links, the parallelogram reduces to a triangle with effective lengths L₂ = 170 mm and L₄.₂ = 150 mm and a fixed distal kink δ = 15°. The following derivation uses the cosine rule, with x forward and z downward. It is an ideal geometric model, not a verified copy of the onboard Python controller.</p>
 <ol style="line-height:1.8;padding-left:24px">
-<li><strong>Reduce 3D to 2D.</strong> With signed lateral offset o, compute h = √(y² + z² − o²) and θ₃ = atan2(y,z) − atan2(o,h).</li>
+<li><strong>Reduce 3D to 2D.</strong> With signed lateral offset o, compute r = √(y² + z²), h = √(r² − o²), η = atan2(y,z) and θ₃ = η − atan2(o,h). Here η is the frontal foot inclination, distinct from the planar angle β.</li>
 <li><strong>Foot distance and inclination.</strong> a = √(x² + h²), γ = atan2(x,h).</li>
 <li><strong>Angle definitions.</strong> γ is the signed inclination from the downward vertical to the motor-to-foot line OF. β is the internal angle between OF and the upper link OK. α is the internal knee angle between KO and KF. O denotes the coaxial motor axis, K the knee and F the foot.</li><li><strong>Cosine rule.</strong> α = acos((L₂² + L₄.₂² − a²)/(2 L₂ L₄.₂)); β = acos((L₂² + a² − L₄.₂²)/(2 L₂ a)).</li>
 <li><strong>Upper link.</strong> For the illustrated assembly branch, q = γ + β. The knee is K = (L₂ sin q, L₂ cos q).</li>
@@ -111,7 +111,7 @@
 </ol>
 <h3>Explore the reduced 3D geometry</h3><p>Adjust the target coordinates in millimetres. The lateral offset defaults to an illustrative 40 mm. This visualization checks triangle reachability only; physical joint limits, collisions and calibration are not included.</p>
 <div id="ik-controls" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px"></div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:20px 0"><div><strong>Front view · y–z</strong><svg id="ik-front" viewBox="0 0 300 310" width="100%" role="img" aria-label="Frontal leg geometry"></svg></div><div><strong>Side view · x–h</strong><svg id="ik-side" viewBox="0 0 300 310" width="100%" role="img" aria-label="Planar cosine-rule triangle"></svg></div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:20px 0"><div><strong>Front view · y–z</strong><svg id="ik-front" viewBox="-30 -22 360 350" width="100%" role="img" aria-label="Frontal leg geometry"></svg></div><div><strong>Side view · x–h</strong><svg id="ik-side" viewBox="-30 -22 360 350" width="100%" role="img" aria-label="Planar cosine-rule triangle"></svg></div></div>
 <p style="font-size:.9em"><span style="color:#fbbf24">γ — foot inclination</span> · <span style="color:#c084fc">β — upper link to foot line</span> · <span style="color:#f472b6">α — internal knee angle</span></p><p id="ik-result" aria-live="polite" style="font-variant-numeric:tabular-nums"></p>
 <script>
 (()=>{const root=document.getElementById('ik-controls'), inputs={}; for(const [key,min,max,value] of [['x',-180,180,0],['y',-160,160,40],['z',60,320,220],['o',-80,80,40]]){const label=document.createElement('label');label.textContent=key+' (mm) ';const out=document.createElement('output');const input=document.createElement('input');Object.assign(input,{type:'range',min,max,value,step:1});input.style.width='100%';label.append(out,input);root.append(label);inputs[key]={input,out};input.addEventListener('input',draw);}
@@ -123,11 +123,16 @@ if(!valid){plot(front,['y','z'],[[0,0,'O'],[y,z,'F']],[[0,1,'#ef4444',true]]);si
 const t3=Math.atan2(y,z)-Math.atan2(o,h),g=Math.atan2(x,h),alpha=Math.acos((170**2+150**2-a*a)/(2*170*150)),beta=Math.acos((170**2+a*a-150**2)/(340*a)),q=g+beta,phi=q+alpha-Math.PI;
 plot(front,['y','z'],[[0,0,'O'],[o*Math.cos(t3),-o*Math.sin(t3),'offset'],[y,z,'F']],[[0,1,'#f59e0b'],[1,2,'#60a5fa'],[0,2,'#94a3b8',true]]);
 plot(side,['x','h'],[[0,0,'O'],[170*Math.sin(q),170*Math.cos(q),'K'],[x,h,'F']],[[0,1,'#60a5fa'],[1,2,'#34d399'],[0,2,'#94a3b8',true]]);
-function arc(cx,cy,start,end,r,label,color){let d=Math.atan2(Math.sin(end-start),Math.cos(end-start));const p=t=>[cx+r*Math.sin(t),cy+r*Math.cos(t)],u=p(start),v=p(start+d),m=start+d/2,tx=cx+(r+13)*Math.sin(m),ty=cy+(r+13)*Math.cos(m);side.insertAdjacentHTML('beforeend','<path d="M'+u.join(' ')+' A'+r+' '+r+' 0 0 '+(d<0?1:0)+' '+v.join(' ')+'" fill="none" stroke="'+color+'" stroke-width="2"/><text x="'+tx+'" y="'+ty+'" fill="'+color+'" font-size="15" font-weight="bold" text-anchor="middle">'+label+'</text>');}
-arc(150,32,0,g,29,'γ','#fbbf24');
-arc(150,32,g,q,53,'β','#c084fc');
-const kx=150+.72*170*Math.sin(q),ky=32+.72*170*Math.cos(q);
-arc(kx,ky,q+Math.PI,phi,30,'α','#f472b6');
+function arc(svg,cx,cy,start,end,r,label,color){let d=Math.atan2(Math.sin(end-start),Math.cos(end-start));const p=t=>[cx+r*Math.sin(t),cy+r*Math.cos(t)],u=p(start),v=p(start+d),m=start+d/2,tx=cx+(r+12)*Math.sin(m),ty=cy+(r+12)*Math.cos(m);svg.insertAdjacentHTML('beforeend','<path d="M'+u.join(' ')+' A'+r+' '+r+' 0 0 '+(d<0?1:0)+' '+v.join(' ')+'" fill="none" stroke="'+color+'" stroke-width="2"/><text x="'+tx+'" y="'+ty+'" fill="'+color+'" font-size="12" font-weight="bold" text-anchor="middle">'+label+'</text>');}
+function seg(svg,p,q,label,color,dashed=false,dx=0,dy=0){const X=p=>150+.72*p[0],Y=p=>32+.72*p[1];svg.insertAdjacentHTML('beforeend','<line x1="'+X(p)+'" y1="'+Y(p)+'" x2="'+X(q)+'" y2="'+Y(q)+'" stroke="'+color+'" stroke-width="'+(dashed?1.5:3)+'" '+(dashed?'stroke-dasharray="5 4"':'')+'/><text x="'+((X(p)+X(q))/2+dx)+'" y="'+((Y(p)+Y(q))/2+dy)+'" fill="'+color+'" font-size="12" text-anchor="middle" paint-order="stroke" stroke="#171d25" stroke-width="3">'+label+'</text>');}
+const O=[0,0],F=[y,z],H=[o*Math.cos(t3),-o*Math.sin(t3)],D=[h*Math.sin(t3),h*Math.cos(t3)],K=[170*Math.sin(q),170*Math.cos(q)],P=[x,h];
+plot(front,['y','z'],[[0,0,'Ab/Ad'],[...H,'Hip'],[y,z,'Foot']],[]);
+seg(front,O,H,'o','#f59e0b',false,0,-8);seg(front,H,F,'h','#60a5fa',false,12,0);seg(front,O,F,'r','#e2e8f0',true,-12,0);seg(front,O,D,'','#34d399',true);seg(front,D,F,'','#34d399',true);seg(front,[0,z],F,'y','#94a3b8',true,0,13);seg(front,[y,0],F,'z','#94a3b8',true,12,0);
+arc(front,150,32,0,t3,27,'θ₃','#f59e0b');arc(front,150,32,0,Math.atan2(y,z),52,'η','#60a5fa');
+plot(side,['x','h'],[[0,0,'Motor'],[...K,'Knee'],[x,h,'Foot']],[]);
+seg(side,O,K,'L₂ = 170','#60a5fa',false,15,-8);seg(side,K,P,'L₄.₂ = 150','#34d399',false,20,5);seg(side,O,P,'a','#e2e8f0',true,-12,0);seg(side,[0,h],P,'x','#94a3b8',true,0,13);seg(side,[x,0],P,'h','#94a3b8',true,-12,0);
+arc(side,150,32,0,g,26,'γ','#fbbf24');arc(side,150,32,g,q,48,'β','#c084fc');arc(side,150,32,0,q,70,'q','#60a5fa');
+const kx=150+.72*K[0],ky=32+.72*K[1];arc(side,kx,ky,q+Math.PI,phi,30,'α','#f472b6');
 result.textContent='θ₁ = '+wrap(15-phi*deg).toFixed(2)+'°  |  θ₂ = '+wrap(180-q*deg).toFixed(2)+'°  |  θ₃ = '+(t3*deg).toFixed(2)+'°  |  h = '+h.toFixed(1)+' mm  |  a = '+a.toFixed(1)+' mm  |  α = '+(alpha*deg).toFixed(2)+'°  |  β = '+(beta*deg).toFixed(2)+'°  |  γ = '+(g*deg).toFixed(2)+'°';}
 draw();})();
 </script></section>
