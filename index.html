@@ -104,7 +104,7 @@
 <ol style="line-height:1.8;padding-left:24px">
 <li><strong>Reduce 3D to 2D.</strong> With signed lateral offset o, compute h = √(y² + z² − o²) and θ₃ = atan2(y,z) − atan2(o,h).</li>
 <li><strong>Foot distance and inclination.</strong> a = √(x² + h²), γ = atan2(x,h).</li>
-<li><strong>Cosine rule.</strong> α = acos((L₂² + L₄.₂² − a²)/(2 L₂ L₄.₂)); β = acos((L₂² + a² − L₄.₂²)/(2 L₂ a)).</li>
+<li><strong>Angle definitions.</strong> γ is the signed inclination from the downward vertical to the motor-to-foot line OF. β is the internal angle between OF and the upper link OK. α is the internal knee angle between KO and KF. O denotes the coaxial motor axis, K the knee and F the foot.</li><li><strong>Cosine rule.</strong> α = acos((L₂² + L₄.₂² − a²)/(2 L₂ L₄.₂)); β = acos((L₂² + a² − L₄.₂²)/(2 L₂ a)).</li>
 <li><strong>Upper link.</strong> For the illustrated assembly branch, q = γ + β. The knee is K = (L₂ sin q, L₂ cos q).</li>
 <li><strong>Distal link and driven short link.</strong> φ = q + α − 180°. The short-link orientation measured from downward is φ + 180° − δ. Using the website simulator convention (clockwise from upward in screen coordinates), θ₁ = wrap(δ − φ), θ₂ = wrap(180° − q). The opposite leg requires reflection and its own motor signs.</li>
 <li><strong>Motor commands.</strong> p = p_home + s i (θ − θ_home)/360°, where i is the reduction ratio and s is the calibrated motor direction. Use continuous angle differences across the wrap boundary.</li>
@@ -112,7 +112,7 @@
 <h3>Explore the reduced 3D geometry</h3><p>Adjust the target coordinates in millimetres. The lateral offset defaults to an illustrative 40 mm. This visualization checks triangle reachability only; physical joint limits, collisions and calibration are not included.</p>
 <div id="ik-controls" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px"></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:20px 0"><div><strong>Front view · y–z</strong><svg id="ik-front" viewBox="0 0 300 310" width="100%" role="img" aria-label="Frontal leg geometry"></svg></div><div><strong>Side view · x–h</strong><svg id="ik-side" viewBox="0 0 300 310" width="100%" role="img" aria-label="Planar cosine-rule triangle"></svg></div></div>
-<p id="ik-result" aria-live="polite" style="font-variant-numeric:tabular-nums"></p>
+<p style="font-size:.9em"><span style="color:#fbbf24">γ — foot inclination</span> · <span style="color:#c084fc">β — upper link to foot line</span> · <span style="color:#f472b6">α — internal knee angle</span></p><p id="ik-result" aria-live="polite" style="font-variant-numeric:tabular-nums"></p>
 <script>
 (()=>{const root=document.getElementById('ik-controls'), inputs={}; for(const [key,min,max,value] of [['x',-180,180,0],['y',-160,160,40],['z',60,320,220],['o',-80,80,40]]){const label=document.createElement('label');label.textContent=key+' (mm) ';const out=document.createElement('output');const input=document.createElement('input');Object.assign(input,{type:'range',min,max,value,step:1});input.style.width='100%';label.append(out,input);root.append(label);inputs[key]={input,out};input.addEventListener('input',draw);}
 const deg=180/Math.PI,wrap=v=>((v+180)%360+360)%360-180;
@@ -123,7 +123,12 @@ if(!valid){plot(front,['y','z'],[[0,0,'O'],[y,z,'F']],[[0,1,'#ef4444',true]]);si
 const t3=Math.atan2(y,z)-Math.atan2(o,h),g=Math.atan2(x,h),alpha=Math.acos((170**2+150**2-a*a)/(2*170*150)),beta=Math.acos((170**2+a*a-150**2)/(340*a)),q=g+beta,phi=q+alpha-Math.PI;
 plot(front,['y','z'],[[0,0,'O'],[o*Math.cos(t3),-o*Math.sin(t3),'offset'],[y,z,'F']],[[0,1,'#f59e0b'],[1,2,'#60a5fa'],[0,2,'#94a3b8',true]]);
 plot(side,['x','h'],[[0,0,'O'],[170*Math.sin(q),170*Math.cos(q),'K'],[x,h,'F']],[[0,1,'#60a5fa'],[1,2,'#34d399'],[0,2,'#94a3b8',true]]);
-result.textContent='θ₁ = '+wrap(15-phi*deg).toFixed(2)+'°  |  θ₂ = '+wrap(180-q*deg).toFixed(2)+'°  |  θ₃ = '+(t3*deg).toFixed(2)+'°  |  h = '+h.toFixed(1)+' mm  |  a = '+a.toFixed(1)+' mm  |  α = '+(alpha*deg).toFixed(2)+'°  |  β = '+(beta*deg).toFixed(2)+'°';}
+function arc(cx,cy,start,end,r,label,color){let d=Math.atan2(Math.sin(end-start),Math.cos(end-start));const p=t=>[cx+r*Math.sin(t),cy+r*Math.cos(t)],u=p(start),v=p(start+d),m=start+d/2,tx=cx+(r+13)*Math.sin(m),ty=cy+(r+13)*Math.cos(m);side.insertAdjacentHTML('beforeend','<path d="M'+u.join(' ')+' A'+r+' '+r+' 0 0 '+(d<0?1:0)+' '+v.join(' ')+'" fill="none" stroke="'+color+'" stroke-width="2"/><text x="'+tx+'" y="'+ty+'" fill="'+color+'" font-size="15" font-weight="bold" text-anchor="middle">'+label+'</text>');}
+arc(150,32,0,g,29,'γ','#fbbf24');
+arc(150,32,g,q,53,'β','#c084fc');
+const kx=150+.72*170*Math.sin(q),ky=32+.72*170*Math.cos(q);
+arc(kx,ky,q+Math.PI,phi,30,'α','#f472b6');
+result.textContent='θ₁ = '+wrap(15-phi*deg).toFixed(2)+'°  |  θ₂ = '+wrap(180-q*deg).toFixed(2)+'°  |  θ₃ = '+(t3*deg).toFixed(2)+'°  |  h = '+h.toFixed(1)+' mm  |  a = '+a.toFixed(1)+' mm  |  α = '+(alpha*deg).toFixed(2)+'°  |  β = '+(beta*deg).toFixed(2)+'°  |  γ = '+(g*deg).toFixed(2)+'°';}
 draw();})();
 </script></section>
     </section>
